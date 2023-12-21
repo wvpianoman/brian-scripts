@@ -4,9 +4,6 @@
 # I modified a script he made for Fedora to work with Solus.
 # Dec 20 2023
 
-# Tolga's online script
-# Run from remote location:
-# sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/tolgaerok/tolga-scripts/main/Fedora39/TolgaFedora39.sh)"
 
 # Brians online script
 # sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/wvpianoman/brian-scripts/main/solus/Solus.sh)"
@@ -189,45 +186,7 @@ install_firmware() {
     fi
 }
 
-######################################################################################
-# Function to install GPU drivers with a reboot option on a 3 min timer, Nvidia && AMD
-######################################################################################
-install_gpu_drivers() {
-    display_message "[${GREEN}✔${NC}]  Checking GPU and installing drivers..."
 
-
-    # Check for AMD GPU
-    if lspci | grep -i amd &>/dev/null; then
-        display_message "AMD GPU detected. Installing AMD drivers..."
-
-        sudo dnf install -y mesa-dri-drivers
-        sudo dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
-        sudo dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
-
-        check_error "Failed to install AMD drivers."
-        display_message "AMD drivers installed successfully."
-        gum spin --spinner dot --title "Stand-by..." -- sleep 2
-    fi
-################################################################################################################
-    glxinfo | egrep "OpenGL vendor|OpenGL renderer"
-
-    # Prompt user for reboot or continue
-    read -p "Do you want to reboot now? (y/n): " choice
-    case "$choice" in
-    y | Y)
-        # Reboot the system after 3 minutes
-        display_message "Rebooting in 3 minutes. Press Ctrl+C to cancel."
-        sleep 180
-        sudo reboot
-        ;;
-    n | N)
-        display_message "Reboot skipped. Continuing with the script."
-        ;;
-    *)
-        display_message "Invalid choice. Continuing with the script."
-        ;;
-    esac
-}
 
 ######################################################################################
 # Function to optimize battery life on lappy, in theory.... LOL
@@ -348,25 +307,7 @@ disable_network_manager_wait_online() {
 ######################################################################################
 # Function to check if mitigations=off is present in GRUB configuration
 ######################################################################################
-check_mitigations_grub() {
-    display_message "[${GREEN}✔${NC}]  Checking if mitigations=off is present in GRUB configuration..."
 
-    # Read the GRUB configuration
-    grub_config=$(cat /etc/default/grub)
-
-    # Check if mitigations=off is present
-    if echo "$grub_config" | grep -q "mitigations=off threadirqs"; then
-        display_message "[${GREEN}✔${NC}]  Mitigations are currently disabled in GRUB configuration: ==>  ( Success! )"
-        gum spin --spinner dot --title "Stand-by..." -- sleep 2
-    else
-        display_message "[${RED}✘${NC}] Warning: Mitigations are not currently disabled in GRUB configuration."
-        gum spin --spinner dot --title "Stand-by..." -- sleep 2
-    fi
-}
-
-# Template
-# display_message "[${GREEN}✔${NC}]
-# display_message "[${RED}✘${NC}]
 
 download_and_install_code_tv() {
     local download_url="$1"
@@ -1378,29 +1319,29 @@ display_main_menu() {
     clear
     echo -e "\n                  Tolga's online Fedora updater\n"
     echo -e "\e[34m|--------------------------|\e[33m Main Menu \e[34m |-------------------------------------|\e[0m"
-    echo -e "\e[33m 1.\e[0m \e[32m Configure faster updates in DNF\e[0m"
-    echo -e "\e[33m 2.\e[0m \e[32m Install RPM Fusion repositories\e[0m"
+    echo -e "\e[33m 1.\e[0m \e[32m \e[0m"
+    echo -e "\e[33m 2.\e[0m \e[32m \e[0m"
     echo -e "\e[33m 3.\e[0m \e[32m Update the system                                            ( Create meta cache etc )\e[0m"
     echo -e "\e[33m 4.\e[0m \e[32m Install firmware updates                                     ( Not compatible with all systems )\e[0m"
-    echo -e "\e[9m 5. Install Nvidia / AMD GPU drivers                                          (Auto scan and install)\e[0m"
+    echo -e "\e[9m 5. \e[0m \e[32m \e[0m"
     echo -e "\e[33m 6.\e[0m \e[32m Optimize battery life\e[0m"
     echo -e "\e[9m 7\e[0m.\e[9m \e[32mInstall multimedia codecs                                          \e[0m"
     echo -e "\e[33m 8.\e[0m \e[32m Install H/W Video Acceleration for AMD or Intel\e[0m"
     echo -e "\e[33m 9.\e[0m \e[32m Update Flatpak\e[0m"
     echo -e "\e[33m 10.\e[0m \e[32mSet UTC Time\e[0m"
-    echo -e "\e[33m 11.\e[0m \e[32mDisable mitigations\e[0m"
+    echo -e "\e[33m 11.\e[0m \e[32m \e[0m"
     echo -e "\e[33m 12.\e[0m \e[32mEnable Modern Standby\e[0m"
     echo -e "\e[33m 13.\e[0m \e[32mEnable nvidia-modeset\e[0m"
     echo -e "\e[33m 14.\e[0m \e[32mDisable NetworkManager-wait-online.service\e[0m"
     echo -e "\e[33m 15.\e[0m \e[32mDisable Gnome Software from Startup Apps\e[0m"
     echo -e "\e[33m 16.\e[0m \e[32mChange hostname                                              ( Change current localname/pc name )\e[0m"
-    echo -e "\e[33m 17.\e[0m \e[32mCheck mitigations=off in GRUB\e[0m"
+    echo -e "\e[33m 17.\e[0m \e[32m \e[0m"
     echo -e "\e[33m 18.\e[0m \e[32mInstall additional apps\e[0m"
     echo -e "\e[33m 19.\e[0m \e[32mCleanup Fedora\e[0m"
     echo -e "\e[33m 20.\e[0m \e[32mFix Chrome HW accelerations issue                            ( No guarantee )\e[0m"
     echo -e "\e[33m 21.\e[0m \e[32mDisplay XDG session\e[0m"
     echo -e "\e[33m 22.\e[0m \e[32mFix grub or rebuild grub                                     ( Checks and enables menu output to grub menu )\e[0m"
-    echo -e "\e[33m 23.\e[0m \e[32mInstall new DNF5                                             ( Testing for fedora 40/41 )\e[0m"
+    echo -e "\e[33m 23.\e[0m \e[32m \e[0m"
     echo -e "\e[33m 24.\e[0m \e[32mRemove KDE bloatware                                         ( Why are these installed? )\e[0m"
     echo -e "\e[33m 25.\e[0m \e[32mPerform BTRFS balance and scrub operation on / partition     ( !! WARNING, backup important data incase, 5 min operation )\e[0m"
     echo -e "\e[33m 26.\e[0m \e[32mCreate extra hidden dir in HOME                                "
@@ -1433,13 +1374,13 @@ handle_user_input() {
     2)  ;;
     3) update_system ;;
     4) install_firmware ;;
-    5) install_gpu_drivers ;;
+    5)  ;;
     6) optimize_battery ;;
     7) install_multimedia_codecs ;;
     8) install_hw_video_acceleration_amd_or_intel ;;
     9) update_flatpak ;;
     10) set_utc_time ;;
-    11) disable_mitigations ;;
+    11)  ;;
     12) enable_modern_standby ;;
     13) enable_nvidia_modeset ;;
     14) disable_network_manager_wait_online ;;
