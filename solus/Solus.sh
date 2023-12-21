@@ -238,11 +238,13 @@ optimize_battery() {
     # Check if the battery exists
     if [ -e "/sys/class/power_supply/BAT0" ]; then
         # Install TLP and mask power-profiles-daemon
-        sudo dnf install -y tlp tlp-rdw
+        # sudo dnf install -y tlp tlp-rdw
+        sudo eopkg install -y tlp
         sudo systemctl mask power-profiles-daemon
 
         # Install powertop and apply auto-tune
-        sudo dnf install -y powertop
+        # sudo dnf install -y powertop
+        sudo eopkg install -y powertop
         sudo powertop --auto-tune
 
         display_message "Battery optimization completed."
@@ -1360,9 +1362,9 @@ display_main_menu() {
     echo -e "\e[33m 2.\e[0m \e[32m Install RPM Fusion repositories\e[0m"
     echo -e "\e[33m 3.\e[0m \e[32m Update the system                                            ( Create meta cache etc )\e[0m"
     echo -e "\e[33m 4.\e[0m \e[32m Install firmware updates                                     ( Not compatible with all systems )\e[0m"
-    echo -e "\e[33m 5.\e[0m \e[32m Install Nvidia / AMD GPU drivers                             ( Auto scan and install )\e[0m"
+    echo -e "\e[9m 5. Install Nvidia / AMD GPU drivers                                          (Auto scan and install)\e[0m"
     echo -e "\e[33m 6.\e[0m \e[32m Optimize battery life\e[0m"
-    echo -e "\e[33m 7.\e[0m \e[32m Install multimedia codecs\e[0m"
+    echo -e "\e[9m 7\e[0m.\e[9m \e[32mInstall multimedia codecs                                          \e[0m"
     echo -e "\e[33m 8.\e[0m \e[32m Install H/W Video Acceleration for AMD or Intel\e[0m"
     echo -e "\e[33m 9.\e[0m \e[32m Update Flatpak\e[0m"
     echo -e "\e[33m 10.\e[0m \e[32mSet UTC Time\e[0m"
