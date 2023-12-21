@@ -4,8 +4,8 @@
 # I modified a script he made for Fedora to work with Solus.
 # Dec 20 2023
 
-# Run from remote location:::.
-# sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/tolgaerok/tolga-scripts/main/Fedora39/FlatPakApps.sh)"
+# Run from remote location:
+# bash -c "$(curl -fsSL https://raw.githubusercontent.com/wvpianoman/brian-scripts/main/solus/FlatPakInstall.sh)"
 
 #   《˘ ͜ʖ ˘》
 #
