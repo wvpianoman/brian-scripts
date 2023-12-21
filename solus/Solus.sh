@@ -1353,6 +1353,26 @@ firewall() {
 # display_message "[${GREEN}✔${NC}]
 # display_message "[${RED}✘${NC}]
 
+update_flatpak() {
+    display_message "[${GREEN}✔${NC}]  Updating Flatpak..."
+
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    # flatpak update
+    flatpak update -y
+
+    display_message "[${GREEN}✔${NC}]  Executing Tolga's Flatpak's..."
+
+    sudo flatpak override --env=GTK_MODULES=colorreload-gtk-module org.mozilla.firefox
+
+    # Execute the Flatpak Apps installation script from the given URL
+    bash -c "$(curl -fsSL https://raw.githubusercontent.com/tolgaerok/tolga-scripts/main/Fedora39/FlatPakApps.sh)"
+
+    display_message "[${GREEN}✔${NC}]  Flatpak updated successfully."
+
+    # Call the cleanup function
+    cleanup_flatpak_cruft
+}
+
 # Function to display the main menu.
 display_main_menu() {
     clear
