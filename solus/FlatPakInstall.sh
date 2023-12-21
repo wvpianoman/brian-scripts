@@ -196,4 +196,7 @@ sleep 1
 flatpak --columns=app,name,size,installation list
 echo -e "\e[1;32m[✔]\e[0m List of flatpaks on system...\n"
 
+# systemctl status dbus
+sudo systemctl start dbus
+
 echo "Installation completed. You can now run the installed applications."
