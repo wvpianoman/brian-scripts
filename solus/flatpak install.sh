@@ -18,7 +18,10 @@
 #
 
 
-ABLE_WAYLAND=1 org.mozilla.firefox
+# ABLE_WAYLAND=1 org.mozilla.firefox
+flatpak override --user --socket=wayland --env=MOZ_ENABLE_WAYLAND=1 org.mozilla.firefox
+# Hi brian, use this to set environment variables and modify permissions for a Flatpak application. The command used her is specifically 
+# configuring the Firefox Flatpak to enable Wayland support
 
 # Temporarily open Firefox to create profiles
 flatpak run --user org.mozilla.firefox
