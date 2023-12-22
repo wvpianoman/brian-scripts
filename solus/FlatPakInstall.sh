@@ -4,8 +4,8 @@
 # I modified a script he made for Fedora to work with Solus.
 # Dec 20 2023
 
-# Run from remote location:::.
-# sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/tolgaerok/tolga-scripts/main/Fedora39/FlatPakApps.sh)"
+# Run from remote location:
+# bash -c "$(curl -fsSL https://raw.githubusercontent.com/wvpianoman/brian-scripts/main/solus/FlatPakInstall.sh)"
 
 #   《˘ ͜ʖ ˘》
 #
@@ -18,7 +18,10 @@
 #
 
 
-ABLE_WAYLAND=1 org.mozilla.firefox
+# ABLE_WAYLAND=1 org.mozilla.firefox
+flatpak override --user --socket=wayland --env=MOZ_ENABLE_WAYLAND=1 org.mozilla.firefox
+# Hi brian, use this to set environment variables and modify permissions for a Flatpak application. The command used her is specifically 
+# configuring the Firefox Flatpak to enable Wayland support
 
 # Temporarily open Firefox to create profiles
 flatpak run --user org.mozilla.firefox
@@ -192,5 +195,8 @@ sleep 1
 # Display all platpaks installed on system
 flatpak --columns=app,name,size,installation list
 echo -e "\e[1;32m[✔]\e[0m List of flatpaks on system...\n"
+
+# systemctl status dbus
+sudo systemctl start dbus
 
 echo "Installation completed. You can now run the installed applications."
