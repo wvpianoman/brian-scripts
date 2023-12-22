@@ -5,7 +5,7 @@
 # Dec 20 2023
 
 # Run from remote location:::...1112
-# sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/tolgaerok/tolga-scripts/main/Fedora39/TolgaFedora39.sh)"
+# sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/wvpianoman/brian-scripts/main/solus/Solus.sh)"
 
 #   《˘ ͜ʖ ˘》
 #
