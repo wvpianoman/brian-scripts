@@ -17,6 +17,57 @@
 #╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚═╝     ╚═╝     ╚══════╝
 #
 
+# Prompt user for confirmation
+read -p ")==> This script will install Flatpak applications and make system modifications. Do you want to continue? (y/n): " choice
+if [[ ! "$choice" =~ ^[Yy]$ ]]; then
+    echo "Installation aborted."
+    exit 0
+fi
+
+# Check if Flatpak is installed
+if ! command -v flatpak &>/dev/null; then
+    echo "Flatpak is not installed. Please install Flatpak and run the script again."
+    sleep 10
+fi
+
+# Add Flathub repository if not already added
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+# if lspci | grep VGA | grep "Intel" >/dev/null; then
+flatpak install -y flathub org.freedesktop.Platform.VAAPI.Intel/x86_64/22.08
+flatpak install -y flathub org.freedesktop.Platform.VAAPI.Intel/x86_64/23.08
+# fi
+
+# Install Flatpak runtimes
+flatpak install -y flathub org.freedesktop.Platform.ffmpeg-full/x86_64/22.08
+flatpak install -y flathub org.freedesktop.Platform.ffmpeg-full/x86_64/23.08
+flatpak install -y flathub org.freedesktop.Platform.GStreamer.gstreamer-vaapi/x86_64/22.08
+flatpak install -y flathub org.freedesktop.Platform.GStreamer.gstreamer-vaapi/x86_64/23.08
+
+# Install Bottles
+flatpak install -y flathub com.usebottles.bottles
+
+# Allow Bottles to create application shortcuts
+flatpak override --user --filesystem=xdg-data/applications com.usebottles.bottles
+
+# Allow Bottles to access Steam folder
+flatpak override --user --filesystem=home/.var/app/com.valvesoftware.Steam/data/Steam com.usebottles.bottles
+
+# Install Breeze-GTK flatpak theme
+flatpak install -y flathub org.gtk.Gtk3theme.Breeze
+
+# Install applications
+flatpak install -y flathub org.videolan.VLC
+
+# Install Firefox from Flathub
+flatpak install -y flathub org.mozilla.firefox
+# If flatpak, although it may not apply to your issue, but if you have Nvidia, set all varibles to true in about:config:
+# gfx.webrender.all
+# media.ffmpeg.vaapi.enabled
+# widget.dmabuf.force-enabled
+
+# Set Firefox about:config variables for Nvidia and Flatpak
+# flatpak override --env=MOZ_ENABLE_WAYLAND=1 --env=GDK_BACKEND=x11 org.mozilla.firefox
 
 # ABLE_WAYLAND=1 org.mozilla.firefox
 flatpak override --user --socket=wayland --env=MOZ_ENABLE_WAYLAND=1 org.mozilla.firefox
@@ -154,11 +205,12 @@ flatpak_apps=(
     "com.jgraph.drawio.desktop"
     "org.inkscape.Inkscape"
     "com.discordapp.Discord"
+
 )
 
 # Install applications
 for app in "${flatpak_apps[@]}"; do
-    flatpak install flathub "$app"
+    flatpak install -y flathub "$app"
 done
 sleep 3
 
@@ -200,3 +252,4 @@ echo -e "\e[1;32m[✔]\e[0m List of flatpaks on system...\n"
 sudo systemctl start dbus
 
 echo "Installation completed. You can now run the installed applications."
+sleep 3
