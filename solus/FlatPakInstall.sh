@@ -205,6 +205,7 @@ flatpak_apps=(
     "com.jgraph.drawio.desktop"
     "org.inkscape.Inkscape"
     "com.discordapp.Discord"
+    "nz.mega.MEGAsync"
 
 )
 

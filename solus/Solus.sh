@@ -66,10 +66,10 @@ SWAP_PATH="/swapfile"
 SWAP_SIZE=2G
 SYS_PATH="/etc/sysctl.conf"
 
-sudo snap install figlet
+nix-shell -p figlet
 #clear
 
-sudo go install github.com/charmbracelet/gum@latest
+nix-shell -p gum
 #clear
 
 # none [mq-deadline] kyber bfq
