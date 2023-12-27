@@ -204,8 +204,9 @@ flatpak_apps=(
     "com.jgraph.drawio.desktop"
     "org.inkscape.Inkscape"
     "com.discordapp.Discord"
-    "flatpak install flathub com.google.ChromeDev"
-    "flatpak install flathub com.google.Chrome"
+    "com.google.ChromeDev"
+    "com.google.Chrome"
+    "net.scribus.Scribus"
 
 )
 
