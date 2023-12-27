@@ -196,7 +196,6 @@ flatpak_apps=(
     "org.gimp.GIMP"
     "org.kde.krita"
     "org.libreoffice.LibreOffice"
-    "net.scribus.Scribus"
     "im.riot.Riot"
     "org.telegram.desktop"
     "org.telegram.desktop.webview"
@@ -205,7 +204,8 @@ flatpak_apps=(
     "com.jgraph.drawio.desktop"
     "org.inkscape.Inkscape"
     "com.discordapp.Discord"
-    "nz.mega.MEGAsync"
+    "flatpak install flathub com.google.ChromeDev"
+    "flatpak install flathub com.google.Chrome"
 
 )
 
