@@ -1,21 +1,22 @@
 #!/bin/bash
 
-# I take very, very little credit for this script.  All kudo's go to my brother from another mother, Tolga Erok...
-# I modified a script he made for Fedora to work with Solus.
-# Dec 20 2023
+# Tolga Erok...
+# My personal Fedora 39 KDE tweaker
+# 18/11/2023
 
-# Brians online script
-# sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/wvpianoman/brian-scripts/main/solus/Solus.sh)"
+# Run from remote location:
+# sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/tolgaerok/tolga-scripts/main/Fedora39/TolgaFedora39.sh)"
 
-#   《˘ ͜ʖ ˘》
-#
-#
-#███████╗ ██████╗ ██╗     ██╗   ██╗███████╗    ██╗     ██╗███╗   ██╗██╗   ██╗██╗  ██╗
-#██╔════╝██╔═══██╗██║     ██║   ██║██╔════╝    ██║     ██║████╗  ██║██║   ██║╚██╗██╔╝
-#███████╗██║   ██║██║     ██║   ██║███████╗    ██║     ██║██╔██╗ ██║██║   ██║ ╚███╔╝
-#╚════██║██║   ██║██║     ██║   ██║╚════██║    ██║     ██║██║╚██╗██║██║   ██║ ██╔██╗
-#███████║╚██████╔╝███████╗╚██████╔╝███████║    ███████╗██║██║ ╚████║╚██████╔╝██╔╝ ██╗
-#╚══════╝ ╚═════╝ ╚══════╝ ╚═════╝ ╚══════╝    ╚══════╝╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝
+#  ¯\_(ツ)_/¯
+#    █████▒▓█████ ▓█████▄  ▒█████   ██▀███   ▄▄▄
+#  ▓██   ▒ ▓█   ▀ ▒██▀ ██▌▒██▒  ██▒▓██ ▒ ██▒▒████▄
+#  ▒████ ░ ▒███   ░██   █▌▒██░  ██▒▓██ ░▄█ ▒▒██  ▀█▄
+#  ░▓█▒  ░ ▒▓█  ▄ ░▓█▄   ▌▒██   ██░▒██▀▀█▄  ░██▄▄▄▄██
+#  ░▒█░    ░▒████▒░▒████▓ ░ ████▓▒░░██▓ ▒██▒ ▓█   ▓██▒
+#   ▒ ░    ░░ ▒░ ░ ▒▒▓  ▒ ░ ▒░▒░▒░ ░ ▒▓ ░▒▓░ ▒▒   ▓▒█░
+#   ░       ░ ░  ░ ░ ▒  ▒   ░ ▒ ▒░   ░▒ ░ ▒░  ▒   ▒▒ ░
+#   ░ ░       ░    ░ ░  ░ ░ ░ ░ ▒    ░░   ░   ░   ▒
+#   ░  ░      ░    ░ ░     ░              ░  ░   ░
 
 clear
 
@@ -66,11 +67,18 @@ SWAP_PATH="/swapfile"
 SWAP_SIZE=2G
 SYS_PATH="/etc/sysctl.conf"
 
-nix-shell -p figlet
-#clear
+sudo dnf install -y figlet
+clear
 
-nix-shell -p gum
-#clear
+echo '[charm]
+name=Charm
+baseurl=https://repo.charm.sh/yum/
+enabled=1
+gpgcheck=1
+gpgkey=https://repo.charm.sh/yum/gpg.key' | sudo tee /etc/yum.repos.d/charm.repo
+
+sudo yum install gum -y
+clear
 
 # none [mq-deadline] kyber bfq
 # Super tweak I/O scheduler
@@ -93,13 +101,13 @@ fi
 
 echo""
 # for_exit "figlet"
-figlet Solus Tweaks
+figlet Fedora_39 Tweaks
 gum spin --spinner dot --title "Stand-by..." -- sleep 2
 
 # Function to display messages
 display_message() {
     clear
-    echo -e "\n                  Brian's online Solus updater\n"
+    echo -e "\n                  Tolga's online fedora updater\n"
     echo -e "\e[34m|--------------------\e[33m Currently configuring:\e[34m-------------------|"
     echo -e "|${YELLOW}==>${NC}  $1"
     echo -e "\e[34m|--------------------------------------------------------------|\e[0m"
@@ -117,9 +125,75 @@ check_error() {
     fi
 }
 
-######################################################################################
+# Template
+# display_message "[${GREEN}✔${NC}]
+# display_message "[${RED}✘${NC}]
+
+# Function to configure faster updates in DNF
+configure_dnf() {
+    # Define the path to the DNF configuration file
+    DNF_CONF_PATH="/etc/dnf/dnf.conf"
+
+    display_message "[${GREEN}✔${NC}]  Configuring faster updates in DNF..."
+
+    # Check if the file exists before attempting to edit it
+    if [ -e "$DNF_CONF_PATH" ]; then
+        # Backup the original configuration file
+        sudo cp "$DNF_CONF_PATH" "$DNF_CONF_PATH.bak"
+
+        # Use sudo to edit the DNF configuration file with nano
+        sudo nano "$DNF_CONF_PATH" <<EOL
+[main]
+gpgcheck=1
+installonly_limit=3
+clean_requirements_on_remove=True
+best=False
+skip_if_unavailable=True
+fastestmirror=True
+keepcache=True
+max_parallel_downloads=10
+deltarpm=true
+metadata_timer_sync=0
+metadata_expire=6h
+metadata_expire_filter=repo:base:2h
+metadata_expire_filter=repo:updates:12h
+EOL
+
+        # Inform the user that the update is complete
+        display_message "[${GREEN}✔${NC}] DNF configuration updated for faster updates."
+        sudo dnf install -y fedora-workstation-repositories
+        sudo dnf update && sudo dnf makecache
+    else
+        # Inform the user that the configuration file doesn't exist
+        display_message "[${RED}✘${NC}] Error: DNF configuration file not found at $DNF_CONF_PATH."
+        check_error
+        gum spin --spinner dot --title "Stand-by..." -- sleep 3
+    fi
+
+}
+
+# Install new dnf5
+dnf5() {
+    # Ask the user if they want to install dnf5
+    display_message "${GREEN}=>${NC} Beta: DNF5 for fedora 40/41 testing"
+    read -p "Do you want to install dnf5? (y/n): " install_dnf5
+    if [[ $install_dnf5 =~ ^[Yy]$ ]]; then
+        sudo dnf install dnf5 -y
+        sudo dnf5 update && sudo dnf5 makecache
+        sudo dnf5 distro-sync --releasever=39 --refresh --disablerepo rawhide \
+            --enablerepo fedora --allowerasing --best
+        display_message "${GREEN}=>${NC} Beta: DNF5 installed"
+        echo -e "In order to use dnf5, you need to use ${YELLOW}==>${NC} ${GREEN} sudo dnf5 update${NC}"
+        gum spin --spinner dot --title "Stand-by..." -- sleep 5
+    else
+        display_message "[${RED}✘${NC}] DNF5 installation error !"
+        echo "Aborted installation of dnf5. Returning to the main menu."
+        gum spin --spinner dot --title "Stand-by..." -- sleep 3
+    fi
+
+}
+
 # Change Hostname
-######################################################################################
 change_hotname() {
     current_hostname=$(hostname)
 
@@ -139,15 +213,44 @@ change_hotname() {
     gum spin --spinner dot --title "Stand-by..." -- sleep 2
 }
 
-######################################################################################
+# Template
+# display_message "[${GREEN}✔${NC}]
+# display_message "[${RED}✘${NC}]
+
+# Function to install RPM Fusion
+install_rpmfusion() {
+    display_message "Installing RPM Fusion repositories..."
+
+    sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
+        https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+
+    sudo dnf groupupdate core
+
+    check_error
+
+    display_message "RPM Fusion installed successfully."
+}
+
 # Function to update the system
-######################################################################################
 update_system() {
     display_message "Updating the system...."
 
+    sudo dnf update -y
+
+    # Install necessary dependencies if not already installed
+    display_message "Checking for extra dependencies..."
+    sudo dnf install -y rpmconf
+
+    # Install DNF plugins core (if not already installed)
+    sudo dnf install -y dnf-plugins-core
+
+    # Install required dependencies
+    # sudo dnf install -y epel-release
+    sudo dnf install -y dnf-plugins-core
+
     # Update the package manager
-    sudo eopkg rbs -y
-    sudo eopkg up -y
+    sudo dnf makecache -y
+    sudo dnf upgrade -y --refresh
 
     check_error
 
@@ -155,13 +258,9 @@ update_system() {
     gum spin --spinner dot --title "Stand-by..." -- sleep 2
 }
 
-######################################################################################
 # Function to install firmware updates with a countdown on error
-######################################################################################
 install_firmware() {
     display_message "Installing firmware updates..."
-
-    sudo snap install fwupd
 
     # Attempt to install firmware updates
     sudo fwupdmgr get-devices
@@ -184,24 +283,290 @@ install_firmware() {
     fi
 }
 
+# Template
+# display_message "[${GREEN}✔${NC}]
+# display_message "[${RED}✘${NC}]
 
+# Function to install GPU drivers with a reboot option on a 3 min timer, Nvidia && AMD
+install_gpu_drivers() {
+    display_message "[${GREEN}✔${NC}]  Checking GPU and installing drivers..."
+    sudo dnf install -y mesa-vdpau-drivers
 
-######################################################################################
+    # Check for NVIDIA GPU
+    if lspci | grep -i nvidia &>/dev/null; then
+        display_message "[${GREEN}✔${NC}]  NVIDIA GPU detected. Installing NVIDIA drivers..."
+
+        sudo dnf update
+        sudo dnf upgrade --refresh
+        sudo dnf install dnf-plugins-core -y
+        sudo dnf install fedora-workstation-repositories
+        sudo dnf config-manager --set-enabled rpmfusion-nonfree-nvidia-driver
+
+        # Install the tools required for auto signing to work
+        # sudo dnf -y install kmodtool akmods mokutil openssl
+        sudo dnf -y install akmods openssl
+
+        # Generate a signing key
+        # sudo kmodgenca -a
+
+        # nitiate the key enrollment
+        # sudo mokutil --import /etc/pki/akmods/certs/public_key.der
+
+        sudo dnf copr enable t0xic0der/nvidia-auto-installer-for-fedora -y
+        sudo dnf install nvautoinstall -y
+
+        # Install some dependencies
+        sudo dnf install kernel-devel kernel-headers gcc make dkms acpid libglvnd-glx libglvnd-opengl libglvnd-devel pkgconfig
+
+        # Blacklist some modules
+        echo "blacklist nouveau" >>/etc/modprobe.d/blacklist.conf
+        echo "blacklist iTCO_wdt" >>/etc/modprobe.d/blacklist.conf
+
+        # KMS stands for "Kernel Mode Setting" which is the opposite of "Userland Mode Setting". This feature allows to set the screen resolution
+        # on the kernel side once (at boot), instead of after login from the display manager.
+        sudo sed -i '/GRUB_CMDLINE_LINUX/ s/"$/ rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1"/' /etc/default/grub
+
+        # remove nouveau
+        sudo dnf remove -y xorg-x11-drv-nouveau
+
+        # Backup old initramfs nouveau image #
+        sudo mv /boot/initramfs-$(uname -r).img /boot/initramfs-$(uname -r)-nouveau.img
+
+        # Create new initramfs image #
+        sudo dracut /boot/initramfs-$(uname -r).img $(uname -r)
+
+        # Install NVidia driver
+        sudo dnf install -y akmod-nvidia
+        sudo systemctl disable --now fwupd-refresh.timer
+        sudo dnf repolist | grep 'rpmfusion-nonfree-updates'
+        sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+        sudo dnf install -y https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+        sudo dnf config-manager --set-enabled rpmfusion-free rpmfusion-free-updates rpmfusion-nonfree rpmfusion-nonfree-updates
+
+        sudo dnf install -y kernel-devel akmod-nvidia xorg-x11-drv-nvidia-cuda xorg-x11-drv-nvidia-cuda-libs gcc kernel-headers xorg-x11-drv-nvidia xorg-x11-drv-nvidia-libs
+        sudo dnf install -y gcc kernel-headers kernel-devel akmod-nvidia xorg-x11-drv-nvidia xorg-x11-drv-nvidia-libs xorg-x11-drv-nvidia-libs.i686
+        sudo dnf install -y vdpauinfo libva-vdpau-driver libva-utils vulkan akmods nvidia-vaapi-driver libva-utils vdpauinfo
+        sudo dnf install -y nvidia-settings nvidia-persistenced xorg-x11-drv-nvidia-power
+
+        sudo systemctl enable nvidia-{suspend,resume,hibernate}
+
+        # sudo dnf install -y kernel-devel akmod-nvidia xorg-x11-drv-nvidia-cuda xorg-x11-drv-nvidia-cuda-libs gcc kernel-headers xorg-x11-drv-nvidia xorg-x11-drv-nvidia-libs.x86_64
+        # sudo dnf install -y vdpauinfo libva-vdpau-driver libva-utils vulkan akmods
+        # sudo dnf install -y nvidia-settings nvidia-persistenced
+
+        # Make sure the kernel modules got compiled
+        sudo akmods --force
+
+        # Make sure the boot image got updated as well
+        sudo dracut --force
+
+        sudo dnf install xrandr
+        sudo cp -p /usr/share/X11/xorg.conf.d/nvidia.conf /etc/X11/xorg.conf.d/nvidia.conf
+
+        sudo sudo nvautoinstall rpmadd
+        sudo nvautoinstall driver
+        sudo nvautoinstall nvrepo
+        sudo nvautoinstall plcuda
+        sudo nvautoinstall ffmpeg
+        sudo nvautoinstall vulkan
+        sudo nvautoinstall vidacc
+        sudo nvautoinstall compat
+        gum spin --spinner dot --title "Stand-by..." -- sleep 1
+
+        # Latest/Beta driver
+        # Install the latest drivers from Rawhide
+        # Make sure to replace 'uname -r' with the actual kernel version if needed
+        # sudo dnf install "kernel-devel-uname-r >= $(uname -r)"
+        # sudo dnf update -y
+        # sudo dnf copr enable kwizart/nvidia-driver-rawhide -y
+        # sudo dnf install rpmfusion-nonfree-release-rawhide -y
+        # sudo dnf --enablerepo=rpmfusion-nonfree-rawhide install akmod-nvidia xorg-x11-drv-nvidia xorg-x11-drv-nvidia-cuda --nogpgcheck
+
+        # Or if you want to grab it from the latest Fedora stable release
+        # Make sure to replace 'uname -r' with the actual kernel version if needed
+        # sudo dnf install "kernel-devel-uname-r == $(uname -r)"
+        # sudo dnf update -y
+        # sudo dnf --releasever=30 install akmod-nvidia xorg-x11-drv-nvidia --nogpgcheck
+
+        # Uninstall the NVIDIA driver
+        # dnf remove xorg-x11-drv-nvidia\*
+
+        # Recover from NVIDIA installer
+        # The NVIDIA binary driver installer overwrites some configuration and libraries.
+        # If you want to recover to a clean state, either to use nouveau or the packaged driver, use:
+        # rm -f /usr/lib{,64}/libGL.so.* /usr/lib{,64}/libEGL.so.*
+        # rm -f /usr/lib{,64}/xorg/modules/extensions/libglx.so
+        # dnf reinstall xorg-x11-server-Xorg mesa-libGL mesa-libEGL libglvnd\*
+        # mv /etc/X11/xorg.conf /etc/X11/xorg.conf.saved
+
+        # Version Lock
+        # Sometime, there is a need to lock to a particular driver version for any reason (regression, compatibility with another application, vulkan beta branch or else).
+        # Using dnf versionlock module is the appropriate way to deal with that.
+        # Please remember that version lock will prevent any updates to the NVIDIA driver including fixes for kernel compatibilities if relevant.
+
+        # dnf install python3-dnf-plugin-versionlock
+        # rpm -qa xorg-x11-drv-nvidia* *kmod-nvidia* nvidia-{settings,xconfig,modprobe,persistenced}  >> /etc/dnf/plugins/versionlock.list
+
+        ###### DOWNGRADE NVIDIA FROM 545x to 535x
+        # sudo dnf remove \*nvidia\* --exclude nvidia-gpu-firmware
+        # sudo dnf install akmod-nvidia-535.129.03\* xorg-x11-drv-nvidia-cuda-535.129.03\* nvidia\*535.129.03\*
+
+        display_message "Enabling nvidia-modeset..."
+
+        # Enable nvidia-modeset
+        sudo grubby --update-kernel=ALL --args="nvidia-drm.modeset=1"
+
+        display_message "[${GREEN}✔${NC}]  nvidia-modeset enabled successfully."
+        gum spin --spinner dot --title "Stand-by..." -- sleep 1.5
+
+        SETTINGS_FILE="/etc/environment"
+        BASHRC_FILE="$HOME/.bashrc"
+        PAM_LOGIN_FILE="/etc/pam.d/login"
+
+        # Add PAM module for environment variables to /etc/pam.d/login
+        if ! grep -q "session    required     pam_env.so" "$PAM_LOGIN_FILE"; then
+            echo "session    required     pam_env.so" | sudo tee -a "$PAM_LOGIN_FILE" >/dev/null
+            display_message "[${GREEN}✔${NC}] PAM module for environment variables added to $PAM_LOGIN_FILE."
+            gum spin --spinner dot --title "Stand-by..." -- sleep 2
+        else
+            display_message "[${RED}✘${NC}] PAM module for environment variables already exists in $PAM_LOGIN_FILE. No changes made."
+            gum spin --spinner dot --title "Stand-by..." -- sleep 2
+        fi
+
+        # Check if the export statements already exist in /etc/environment
+        if ! grep -q "__GL_THREADED_OPTIMIZATION=1" "$SETTINGS_FILE" &&
+            ! grep -q "__GL_SHADER_CACHE=1" "$SETTINGS_FILE" &&
+            ! grep -q "__GLX_VENDOR_LIBRARY_NAME=nvidia" "$SETTINGS_FILE" &&
+            ! grep -q "LIBVA_DRIVER_NAME=nvidia" "$SETTINGS_FILE" &&
+            ! grep -q "WLR_NO_HARDWARE_CURSORS=1" "$SETTINGS_FILE"; then
+
+            # Add existing NVIDIA environment variables to /etc/environment
+            echo "__GL_THREADED_OPTIMIZATION=1" | sudo tee -a "$SETTINGS_FILE" >/dev/null
+            echo "__GL_SHADER_CACHE=1" | sudo tee -a "$SETTINGS_FILE" >/dev/null
+            # Optionally, set a custom shader cache path
+            # echo "export __GL_SHADER_DISK_CACHE_PATH=/path/to/shader/cache" | sudo tee -a "$SETTINGS_FILE" > /dev/null
+
+            # Add new NVIDIA environment variables to /etc/environment
+            echo "__GLX_VENDOR_LIBRARY_NAME=nvidia" | sudo tee -a "$SETTINGS_FILE" >/dev/null
+            echo "LIBVA_DRIVER_NAME=nvidia" | sudo tee -a "$SETTINGS_FILE" >/dev/null
+            echo "WLR_NO_HARDWARE_CURSORS=1" | sudo tee -a "$SETTINGS_FILE" >/dev/null
+
+            # Notify user for /etc/environment
+            display_message "[${GREEN}✔${NC}] NVIDIA environment settings have been added to $SETTINGS_FILE."
+            gum spin --spinner dot --title "Stand-by..." -- sleep 2
+
+            display_message "[${GREEN}✔${NC}] Please reboot or log out/in for the changes to take effect."
+            gum spin --spinner dot --title "Stand-by..." -- sleep 2
+
+        else
+            # Notify user that export statements already exist in /etc/environment
+            display_message "[${RED}✘${NC}] NVIDIA environment settings (export statements) already exist in $SETTINGS_FILE. No changes made."
+            gum spin --spinner dot --title "Stand-by..." -- sleep 2
+        fi
+
+        # Check if the export statements already exist in .bashrc
+        if ! grep -q "export __GL_THREADED_OPTIMIZATION=1" "$BASHRC_FILE" &&
+            ! grep -q "export __GL_SHADER_CACHE=1" "$BASHRC_FILE" &&
+            ! grep -q "export __GLX_VENDOR_LIBRARY_NAME=nvidia" "$BASHRC_FILE" &&
+            ! grep -q "export LIBVA_DRIVER_NAME=nvidia" "$BASHRC_FILE" &&
+            ! grep -q "export WLR_NO_HARDWARE_CURSORS=1" "$BASHRC_FILE"; then
+
+            # Add existing NVIDIA environment variables to .bashrc
+            echo "export __GL_THREADED_OPTIMIZATION=1" >>"$BASHRC_FILE"
+            echo "export __GL_SHADER_CACHE=1" >>"$BASHRC_FILE"
+            
+            # Optionally, set a custom shader cache path
+            # echo "export __GL_SHADER_DISK_CACHE_PATH=/path/to/shader/cache" >> "$BASHRC_FILE"
+
+            # Add new NVIDIA environment variables to .bashrc
+            echo "export __GLX_VENDOR_LIBRARY_NAME=nvidia" >>"$BASHRC_FILE"
+            echo "export LIBVA_DRIVER_NAME=nvidia" >>"$BASHRC_FILE"
+            echo "export WLR_NO_HARDWARE_CURSORS=1" >>"$BASHRC_FILE"
+
+            # Notify user for .bashrc
+            display_message "[${GREEN}✔${NC}] NVIDIA environment settings have been added to $BASHRC_FILE."
+            gum spin --spinner dot --title "Stand-by..." -- sleep 2
+
+            display_message "[${GREEN}✔${NC}] Please restart your shell session for the changes to take effect."
+            gum spin --spinner dot --title "Stand-by..." -- sleep 2
+
+        else
+            # Notify user that export statements already exist in .bashrc
+            display_message "[${RED}✘${NC}] NVIDIA environment settings (export statements) already exist in $BASHRC_FILE. No changes made."
+        fi
+
+        driver_version=$(modinfo -F version nvidia 2>/dev/null)
+
+        if [ -n "$driver_version" ]; then
+            display_message "NVIDIA driver version: $driver_version"
+            gum spin --spinner dot --title "Stand-by..." -- sleep 2
+        else
+            display_message "[${RED}✘${NC}] NVIDIA driver not found."
+        fi
+
+        gum spin --spinner dot --title "Stand-by..." -- sleep 2
+
+        check_error "Failed to install NVIDIA drivers."
+        display_message "[${GREEN}✔${NC}]  NVIDIA drivers installed successfully."
+
+        # Make sure the kernel modules got compiled
+        sudo akmods --force
+
+        # Make sure the boot image got updated as well
+        sudo dracut --force
+
+        source ~/.bashrc
+        uname -m && cat /etc/*release
+        gcc --version
+        uname -r
+        gum spin --spinner dot --title "Stand-by..." -- sleep 3.5
+    fi
+
+    # Check for AMD GPU
+    if lspci | grep -i amd &>/dev/null; then
+        display_message "AMD GPU detected. Installing AMD drivers..."
+
+        sudo dnf install -y mesa-dri-drivers
+        sudo dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
+        sudo dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
+
+        check_error "Failed to install AMD drivers."
+        display_message "AMD drivers installed successfully."
+        gum spin --spinner dot --title "Stand-by..." -- sleep 2
+    fi
+
+    glxinfo | egrep "OpenGL vendor|OpenGL renderer"
+
+    # Prompt user for reboot or continue
+    read -p "Do you want to reboot now? (y/n): " choice
+    case "$choice" in
+    y | Y)
+        # Reboot the system after 3 minutes
+        display_message "Rebooting in 3 minutes. Press Ctrl+C to cancel."
+        sleep 180
+        sudo reboot
+        ;;
+    n | N)
+        display_message "Reboot skipped. Continuing with the script."
+        ;;
+    *)
+        display_message "Invalid choice. Continuing with the script."
+        ;;
+    esac
+}
+
 # Function to optimize battery life on lappy, in theory.... LOL
-######################################################################################
 optimize_battery() {
     display_message "Optimizing battery life..."
 
     # Check if the battery exists
     if [ -e "/sys/class/power_supply/BAT0" ]; then
         # Install TLP and mask power-profiles-daemon
-        # sudo dnf install -y tlp tlp-rdw
-        sudo eopkg install -y tlp
+        sudo dnf install -y tlp tlp-rdw
         sudo systemctl mask power-profiles-daemon
 
         # Install powertop and apply auto-tune
-        # sudo dnf install -y powertop
-        sudo eopkg install -y powertop
+        sudo dnf install -y powertop
         sudo powertop --auto-tune
 
         display_message "Battery optimization completed."
@@ -212,9 +577,7 @@ optimize_battery() {
     fi
 }
 
-######################################################################################
 # Function to install multimedia codecs, old fedora hacks to meet new standards (F39)
-######################################################################################
 install_multimedia_codecs() {
     display_message "[${GREEN}✔${NC}]  Installing multimedia codecs..."
 
@@ -232,10 +595,11 @@ install_multimedia_codecs() {
     gum spin --spinner dot --title "Stand-by..." -- sleep 2
 }
 
+# Template
+# display_message "[${GREEN}✔${NC}]
+# display_message "[${RED}✘${NC}]
 
-######################################################################################
 # Function to install H/W Video Acceleration for AMD or Intel chipset
-######################################################################################
 install_hw_video_acceleration_amd_or_intel() {
     display_message "Checking for AMD chipset..."
 
@@ -275,9 +639,41 @@ install_hw_video_acceleration_amd_or_intel() {
     fi
 }
 
-######################################################################################
+# Function to clean up old or unused Flatpak packages
+cleanup_flatpak_cruft() {
+    display_message "Cleaning up old or unused Flatpak packages..."
+
+    # Remove uninstalled runtimes
+    flatpak uninstall --unused -y
+
+    # Remove uninstalled applications
+    flatpak uninstall --unused -y --delete-data
+
+    display_message "Flatpak cleanup completed."
+}
+
+# Function to update Flatpak
+update_flatpak() {
+    display_message "[${GREEN}✔${NC}]  Updating Flatpak..."
+
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    # flatpak update
+    flatpak update --refresh
+
+    display_message "[${GREEN}✔${NC}]  Executing Tolga's Flatpak's..."
+
+    sudo flatpak override --env=GTK_MODULES=colorreload-gtk-module org.mozilla.firefox
+
+    # Execute the Flatpak Apps installation script from the given URL
+    bash -c "$(curl -fsSL https://raw.githubusercontent.com/tolgaerok/tolga-scripts/main/Fedora39/FlatPakApps.sh)"
+
+    display_message "[${GREEN}✔${NC}]  Flatpak updated successfully."
+
+    # Call the cleanup function
+    cleanup_flatpak_cruft
+}
+
 # Function to set UTC Time for dual boot issues, old hack of mine
-######################################################################################
 set_utc_time() {
     display_message "Setting UTC Time..."
 
@@ -287,10 +683,61 @@ set_utc_time() {
     gum spin --spinner dot --title "Stand-by..." -- sleep 2
 }
 
+# Template
+# display_message "[${GREEN}✔${NC}]
+# display_message "[${RED}✘${NC}]
 
-######################################################################################
+# Function to disable mitigations, old fedora hack and used on nixos also, thanks chris titus!
+disable_mitigations() {
+    display_message "Disabling Mitigations..."
+    gum spin --spinner dot --title "Stand-by..." -- sleep 2
+
+    # Inform the user about the security risks
+    display_message "[${RED}✘${NC}] Note: Disabling mitigations can present security risks. Only proceed if you understand the implications."
+
+    # Ask for user confirmation
+    read -p "Do you want to proceed? (y/n): " choice
+    case "$choice" in
+    y | Y)
+        # Disable mitigations
+        sudo grubby --update-kernel=ALL --args="mitigations=off threadirqs swap=0 nowatchdog=1 transparent_hugepage=never intel_idle.max_cstate=0 processor.max_cstate=0"
+        display_message "[${GREEN}✔${NC}]  Mitigations disabled successfully and multi-threading enabled."
+        gum spin --spinner dot --title "Stand-by..." -- sleep 2
+        ;;
+    n | N)
+        display_message "[${RED}✘${NC}] Mitigations not disabled. Exiting."
+        gum spin --spinner dot --title "Stand-by..." -- sleep 2
+        ;;
+    *)
+        display_message "[${RED}✘${NC}] Invalid choice. Exiting."
+        gum spin --spinner dot --title "Stand-by..." -- sleep 2
+        ;;
+    esac
+}
+
+# Function to enable Modern Standby. Can result in better battery life when your laptop goes to sleep.... in theory LOL
+enable_modern_standby() {
+    display_message "Enabling Modern Standby..."
+
+    # Enable Modern Standby
+    sudo grubby --update-kernel=ALL --args="mem_sleep_default=s2idle"
+
+    display_message "Modern Standby enabled successfully."
+    gum spin --spinner dot --title "Stand-by..." -- sleep 2
+}
+
+# Function to enable nvidia-modeset
+enable_nvidia_modeset() {
+    display_message "Enabling nvidia-modeset..."
+
+    # Enable nvidia-modeset
+    sudo grubby --update-kernel=ALL --args="nvidia-drm.modeset=1"
+
+    display_message "[${GREEN}✔${NC}]  nvidia-modeset enabled successfully."
+    gum spin --spinner dot --title "Stand-by..." -- sleep 2
+}
+
 # Function to disable NetworkManager-wait-online.service
-######################################################################################
 disable_network_manager_wait_online() {
     display_message "[${GREEN}✔${NC}]  Disabling NetworkManager-wait-online.service..."
 
@@ -301,11 +748,53 @@ disable_network_manager_wait_online() {
     gum spin --spinner dot --title "Stand-by..." -- sleep 2
 }
 
+# Template
+# display_message "[${GREEN}✔${NC}]
+# display_message "[${RED}✘${NC}]
 
-######################################################################################
+# Function to disable Gnome Software from Startup Apps, if gnome is used... in theory will save heaps of RAM on startup
+disable_gnome_software_startup() {
+    display_message "Disabling Gnome Software from Startup Apps..."
+
+    # Remove Gnome Software from autostart
+    sudo rm /etc/xdg/autostart/org.gnome.Software.desktop
+
+    display_message "Gnome Software disabled from Startup Apps successfully."
+}
+
+# Function to use themes in Flatpaks, learned from nixos and trials and errors...
+use_flatpak_themes() {
+    display_message "Using themes in Flatpaks..."
+
+    # Override themes for Flatpaks
+    sudo flatpak override --filesystem="$HOME/.themes"
+
+    # Select your theme from inside of ./themes
+    sudo flatpak override --env=GTK_THEME=Nordic
+
+    display_message "Themes applied to Flatpaks successfully."
+}
+
 # Function to check if mitigations=off is present in GRUB configuration
-######################################################################################
+check_mitigations_grub() {
+    display_message "[${GREEN}✔${NC}]  Checking if mitigations=off is present in GRUB configuration..."
 
+    # Read the GRUB configuration
+    grub_config=$(cat /etc/default/grub)
+
+    # Check if mitigations=off is present
+    if echo "$grub_config" | grep -q "mitigations=off threadirqs swap=0 nowatchdog=1 transparent_hugepage=never intel_idle.max_cstate=0 processor.max_cstate=0"; then
+        display_message "[${GREEN}✔${NC}]  Mitigations are currently disabled in GRUB configuration: ==>  ( Success! )"
+        gum spin --spinner dot --title "Stand-by..." -- sleep 2
+    else
+        display_message "[${RED}✘${NC}] Warning: Mitigations are not currently disabled in GRUB configuration."
+        gum spin --spinner dot --title "Stand-by..." -- sleep 2
+    fi
+}
+
+# Template
+# display_message "[${GREEN}✔${NC}]
+# display_message "[${RED}✘${NC}]
 
 download_and_install_code_tv() {
     local download_url="$1"
@@ -412,6 +901,9 @@ install_apps() {
     sudo dnf -y clean all
 
     # Install Apps
+    sudo dnf install rpmfusion-free-release-tainted
+    sudo dnf install rpmfusion-nonfree-release-tainted
+    sudo dnf --repo=rpmfusion-nonfree-tainted install "*-firmware"
 
     sudo dnf install -y PackageKit dconf-editor digikam direnv duf earlyoom espeak ffmpeg-libs figlet gedit gimp gimp-devel git gnome-font-viewer
     sudo dnf install -y grub-customizer kate libdvdcss libffi-devel lsd mpg123 neofetch openssl-devel p7zip p7zip-plugins pip python3 python3-pip
@@ -512,45 +1004,99 @@ gpgkey=https://repo.charm.sh/yum/gpg.key' | sudo tee /etc/yum.repos.d/charm.repo
     ## Add new parameteres. Read More: https://github.com/hawshemi/Linux-Optimizer/blob/main/files/sysctl.conf
 
     cat <<EOF >>"$SYS_PATH"
-fs.file-max = 67108864
-net.core.default_qdisc = fq_codel
-net.core.netdev_max_backlog = 32768
-net.core.optmem_max = 65536
-net.core.somaxconn = 65536
-net.core.rmem_max = 16777216
-net.core.wmem_max = 16777216
-net.core.rmem_default = 1048576
-net.core.wmem_default = 1048576
-net.ipv4.tcp_rmem = 8192 1048576 16777216
-net.ipv4.tcp_wmem = 8192 1048576 16777216
-net.ipv4.tcp_congestion_control = westwood
-net.ipv4.tcp_fastopen = 3
-net.ipv4.tcp_fin_timeout = 25
-net.ipv4.tcp_keepalive_time = 1200
-net.ipv4.tcp_keepalive_probes = 7
-net.ipv4.tcp_keepalive_intvl = 30
-net.ipv4.tcp_max_orphans = 819200
-net.ipv4.tcp_max_syn_backlog = 20480
-net.ipv4.tcp_max_tw_buckets = 1440000
-net.ipv4.tcp_mem = 65536 1048576 16777216
-net.ipv4.tcp_mtu_probing = 1
-net.ipv4.tcp_notsent_lowat = 16384
-net.ipv4.tcp_retries2 = 8
-net.ipv4.tcp_sack = 1
-net.ipv4.tcp_dsack = 1
-net.ipv4.tcp_slow_start_after_idle = 0
-net.ipv4.tcp_window_scaling = 1
-net.ipv4.tcp_ecn = 1
-net.ipv4.ip_forward = 1
-net.ipv4.udp_mem = 65536 1048576 16777216
-net.ipv6.conf.all.disable_ipv6 = 0
-net.ipv6.conf.all.forwarding = 1
-net.ipv6.conf.default.disable_ipv6 = 0
-net.unix.max_dgram_qlen = 50
-vm.min_free_kbytes = 65536
-vm.swappiness = 10
-vm.vfs_cache_pressure = 50
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#   Old Nixos Tweaks, to suit (28GB system)
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+kernel.sysrq = 1                         # Enable SysRQ for rebooting the machine properly if it freezes. [Source](https://oglo.dev/tutorials/sysrq/index.html)
+vm.dirty_background_bytes = 474217728    # 128 MB + 300 MB + 400 MB = 828 MB (rounded to 474217728)
+vm.dirty_bytes = 742653184               # 384 MB + 300 MB + 400 MB = 1084 MB (rounded to 742653184)
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#   Nobara Tweaks
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+fs.aio-max-nr = 1000000                  # Defines the maximum number of asynchronous I/O requests that can be in progress at a given time. 1048576
+fs.inotify.max_user_watches = 524288     # Sets the maximum number of file system watches, enhancing file system monitoring capabilities. Default: 8192  TWEAKED: 524288
+kernel.panic = 5                         # Reboot after 5 seconds on kernel panic Default: 0
+kernel.pid_max = 32768                   # Allows a large number of processes and threads to be managed Default: 32768 TWEAKED: 4194304
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#   SSD tweaks: Adjust settings for an SSD to optimize performance.
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+vm.dirty_expire_centisecs = 3000         # Set the time at which dirty data is old enough to be eligible for writeout (6000 centiseconds). Adjusted for SSD.
+vm.dirty_ratio = 80                      # Set the ratio of dirty memory at which a process is forced to write out dirty data (10%). Adjusted for SSD.
+vm.dirty_writeback_centisecs = 300       # Set the interval between two consecutive background writeback passes (500 centiseconds).
+
+fs.file-max = 67108864                        # Maximum number of file handles the kernel can allocate (Default: 67108864)
+kernel.nmi_watchdog = 0                       # Disable NMI watchdog
+kernel.pty.max = 24000                        # Maximum number of pseudo-terminals (PTYs) in the system
+kernel.sched_autogroup_enabled = 0            # Disable automatic task grouping for better server performance
+kernel.unprivileged_bpf_disabled = 1          # Disable unprivileged BPF
+net.core.default_qdisc = fq_codel              
+net.core.netdev_max_backlog = 32768            # Maximum length of the input queue of a network device
+net.core.optmem_max = 65536                    # Maximum ancillary buffer size allowed per socket
+net.core.rmem_default = 1048576                # Default socket receive buffer size
+net.core.rmem_max = 16777216                   # Maximum socket receive buffer size
+net.core.somaxconn = 65536                     # Maximum listen queue backlog
+net.core.wmem_default = 1048576                # Default socket send buffer size
+net.core.wmem_max = 16777216                   # Maximum socket send buffer size
+net.ipv4.conf.all.accept_redirects = 0        # Disable acceptance of all ICMP redirected packets
+net.ipv4.conf.all.secure_redirects = 0        # Disable acceptance of secure ICMP redirected packets
+net.ipv4.conf.all.send_redirects = 0          # Disable sending of all IPv4 ICMP redirected packets
+net.ipv4.conf.default.accept_redirects = 0    # Disable acceptance of all ICMP redirected packets (default)
+net.ipv4.conf.default.secure_redirects = 0    # Disable acceptance of secure ICMP redirected packets (default)
+net.ipv4.conf.default.send_redirects = 0      # Disable sending of all IPv4 ICMP redirected packets (default)
+net.ipv4.ip_forward = 1                       # Enable IP forwarding
+net.ipv4.tcp_congestion_control = westwood     
+net.ipv4.tcp_dsack = 1                         # Enable Delayed SACK
+net.ipv4.tcp_ecn = 1                           # Enable Explicit Congestion Notification (ECN)
+net.ipv4.tcp_fastopen = 3                      # Enable TCP Fast Open with a queue of 3
+net.ipv4.tcp_fin_timeout = 25                  # Time to hold socket in FIN-WAIT-2 state (seconds)
+net.ipv4.tcp_keepalive_intvl = 30              # Time between individual TCP keepalive probes (seconds)
+net.ipv4.tcp_keepalive_probes = 7              # Number of TCP keepalive probes
+net.ipv4.tcp_keepalive_time = 1200             # Time before sending TCP keepalive probes (seconds)
+net.ipv4.tcp_max_orphans = 819200              # Maximum number of TCP sockets not attached to any user file handle
+net.ipv4.tcp_max_syn_backlog = 20480           # Maximum length of the listen queue for accepting new TCP connections
+net.ipv4.tcp_max_tw_buckets = 1440000          # Maximum number of TIME-WAIT sockets
+net.ipv4.tcp_mem = 65536 1048576 16777216      # TCP memory allocation limits
+net.ipv4.tcp_mtu_probing = 1                   # Enable Path MTU Discovery
+net.ipv4.tcp_notsent_lowat = 16384             # Minimum amount of data in the send queue below which TCP will send more data
+net.ipv4.tcp_retries2 = 8                      # Number of times TCP retransmits unacknowledged data segments for the second SYN on a connection initiation
+net.ipv4.tcp_rmem = 8192 1048576 16777216      # TCP read memory allocation for network sockets
+net.ipv4.tcp_sack = 1                          # Enable Selective Acknowledgment (SACK)
+net.ipv4.tcp_slow_start_after_idle = 0         # Disable slow start after idle
+net.ipv4.tcp_slow_start_after_idle = 0         # Disable TCP slow start after idle
+net.ipv4.tcp_window_scaling = 1                # Enable TCP window scaling
+net.ipv4.tcp_wmem = 8192 1048576 16777216      # TCP write memory allocation for network sockets
+net.ipv4.udp_mem = 65536 1048576 16777216      # UDP memory allocation limits
+net.ipv6.conf.all.accept_redirects = 0         # Disable acceptance of all ICMP redirected packets for IPv6
+net.ipv6.conf.all.disable_ipv6 = 0             # Enable IPv6
+net.ipv6.conf.all.forwarding = 1               # Enable IPv6 packet forwarding
+net.ipv6.conf.default.accept_redirects = 0     # Disable acceptance of all ICMP redirected packets for IPv6 (default)
+net.ipv6.conf.default.disable_ipv6 = 0         # Enable IPv6
+net.unix.max_dgram_qlen = 50                   # Maximum length of the UNIX domain socket datagram queue
+vm.dirty_background_ratio = 5                  # Percentage of system memory at which background writeback starts
+vm.extfrag_threshold = 100                     # Fragmentation threshold for the kernel
+vm.min_free_kbytes = 65536                     # Minimum free kilobytes
+vm.mmap_min_addr = 65536                       # Minimum address allowed for a user-space mmap
+vm.swappiness = 10                             # Swappiness parameter (tendency to swap out unused pages)
+vm.vfs_cache_pressure = 50                     # Controls the tendency of the kernel to reclaim the memory used for caching of directory and inode objects
 EOF
+
+    # To Do For NVME ssd
+    #block.sd*/queue/nr_requests=4096
+    #block.sd*/queue/scheduler=bfq
+    #block.sd*/queue/nr_requests=4096
+    #block.sd*/queue/read_ahead_kb=1024
+    #block.sd*/queue/add_random=1
+    #block.nvme*/queue/scheduler=mq-deadline
+    #block.nvme*/queue/scheduler=bfq
+    #3block.nvme*/queue/iosched/low_latency=0
+    #block.nvme*/queue/iosched/low_latency=1
+    #block.nvme*/queue/nr_requests=2048
+    #block.nvme*/queue/read_ahead_kb=1024
+    #block.nvme*/queue/add_random=1
+    #kernel.nmi_watchdog=0
+    #block.{sd,mmc,nvme,0}*/queue/iosched/slice_idle=0
 
     display_message "[${GREEN}✔${NC}]  Adding New network settings"
     sudo sysctl -p
@@ -1144,18 +1690,18 @@ create-extra-dir() {
     display_message "[${GREEN}✔${NC}]  Create extra needed directories"
     # Directories to create
     directories=(
-        "${HOME}/.config/autostart"
-        "${HOME}/.config/environment.d"
-        "${HOME}/.config/systemd/user"
-        "${HOME}/.local/bin"
-        "${HOME}/.local/share/applications"
-        "${HOME}/.local/share/fonts"
-        "${HOME}/.local/share/icons"
-        "${HOME}/.local/share/themes"
-        "${HOME}/.ssh"
-        "${HOME}/.zshrc.d"
-        "${HOME}/Applications"
-        "${HOME}/src"
+        "~/.config/autostart"
+        "~/.config/environment.d"
+        "~/.config/systemd/user"
+        "~/.local/bin"
+        "~/.local/share/applications"
+        "~/.local/share/fonts"
+        "~/.local/share/icons"
+        "~/.local/share/themes"
+        "~/.ssh"
+        "~/.zshrc.d"
+        "~/Applications"
+        "~/src"
     )
 
     # Create directories
@@ -1166,11 +1712,10 @@ create-extra-dir() {
     done
 
     # Set SSH folder permissions
-    chmod 700 ${HOME}/.ssh
+    chmod 700 ~/.ssh
 
     display_message "[${GREEN}✔${NC}]  Extra hidden dirs created"
     gum spin --spinner dot --title "Stand-by..." -- sleep 2
-
 }
 
 speed-up-shutdown() {
@@ -1288,63 +1833,76 @@ firewall() {
     gum spin --spinner dot --title "Reloading MainMenu" -- sleep 1.5
 }
 
+zram() {
+    display_message "[${GREEN}✔${NC}] Setting up ZRAM."
+
+    # Step 1: Create and configure swap file
+    #if [ "$(free -h | grep -c 'Swap')" -eq 0 ]; then
+    sudo fallocate -l 4G /swapfile
+    sudo chmod 600 /swapfile
+    sudo mkswap /swapfile
+    sudo swapon /swapfile
+    echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+    gum spin --spinner dot --title "Create and configure swap file in progress" -- sleep 1.5
+    # fi
+
+    # Step 2: Use echo and sed to update GRUB_CMDLINE_LINUX_DEFAULT
+    display_message "[${GREEN}✔${NC}] Updating GRUB."
+    echo 'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash zswap.enabled=1 zswap.compressor=lz4 zswap.max_pool_percent=50 zswap.zpool=z3fold"' | sudo tee -a /etc/default/grub >/dev/null
+    sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="quiet splash zswap.enabled=1 zswap.compressor=lz4 zswap.max_pool_percent=50 zswap.zpool=z3fold"/' /etc/default/grub
+    sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+    sudo grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
+
+    gum spin --spinner dot --title "GRUB updated successfully. Initializing ( initramfs )" -- sleep 1
+    echo ""
+    echo lz4 | sudo tee -a /etc/initramfs-tools/modules >/dev/null
+    echo lz4_compress | sudo tee -a /etc/initramfs-tools/modules >/dev/null
+    echo z3fold | sudo tee -a /etc/initramfs-tools/modules >/dev/null
+    sudo update-initramfs -u
+
+    display_message "[${GREEN}✔${NC}] ZRAM setup complete"
+    echo ""
+    gum spin --spinner dot --title "REBOOT to enable" -- sleep 3
+}
+
 # Template
 # display_message "[${GREEN}✔${NC}]
 # display_message "[${RED}✘${NC}]
-
-update_flatpak() {
-    display_message "[${GREEN}✔${NC}]  Updating Flatpak..."
-
-    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    # flatpak update
-    flatpak update -y
-
-    display_message "[${GREEN}✔${NC}]  Executing Brians's Flatpak's..."
-
-    flatpak override --env=GTK_MODULES=colorreload-gtk-module org.mozilla.firefox
-
-    # Execute the Flatpak Apps installation script from the given URL
-    bash -c "$(curl -fsSL https://raw.githubusercontent.com/wvpianoman/brian-scripts/main/solus/FlatPakInstall.sh)"
-
-    display_message "[${GREEN}✔${NC}]  Flatpak updated successfully."
-
-    # Call the cleanup function
-    cleanup_flatpak_cruft
-}
 
 # Function to display the main menu.
 display_main_menu() {
     clear
     echo -e "\n                  Tolga's online Fedora updater\n"
-    echo -e "\e[34m|--------------------------|\e[33m Main Menu \e[34m |-------------------------------------|\e[0m"
-    echo -e "\e[33m 1.\e[0m \e[32m \e[0m"
-    echo -e "\e[33m 2.\e[0m \e[32m \e[0m"
+    echo -e "\e[34m|----| \e[33m Main Menu \e[34m |---------------------------------------------------------------------------------------------------------------------|\e[0m"
+    echo -e "\e[33m 1.\e[0m \e[32m Configure faster updates in DNF\e[0m"
+    echo -e "\e[33m 2.\e[0m \e[32m Install RPM Fusion repositories\e[0m"
     echo -e "\e[33m 3.\e[0m \e[32m Update the system                                            ( Create meta cache etc )\e[0m"
     echo -e "\e[33m 4.\e[0m \e[32m Install firmware updates                                     ( Not compatible with all systems )\e[0m"
-    echo -e "\e[9m 5. \e[0m \e[32m \e[0m"
+    echo -e "\e[33m 5.\e[0m \e[32m Install Nvidia / AMD GPU drivers                             ( Auto scan and install )\e[0m"
     echo -e "\e[33m 6.\e[0m \e[32m Optimize battery life\e[0m"
-    echo -e "\e[9m 7\e[0m.\e[9m \e[32mInstall multimedia codecs                                          \e[0m"
+    echo -e "\e[33m 7.\e[0m \e[32m Install multimedia codecs\e[0m"
     echo -e "\e[33m 8.\e[0m \e[32m Install H/W Video Acceleration for AMD or Intel\e[0m"
     echo -e "\e[33m 9.\e[0m \e[32m Update Flatpak\e[0m"
     echo -e "\e[33m 10.\e[0m \e[32mSet UTC Time\e[0m"
-    echo -e "\e[33m 11.\e[0m \e[32m \e[0m"
+    echo -e "\e[33m 11.\e[0m \e[32mDisable mitigations\e[0m"
     echo -e "\e[33m 12.\e[0m \e[32mEnable Modern Standby\e[0m"
     echo -e "\e[33m 13.\e[0m \e[32mEnable nvidia-modeset\e[0m"
     echo -e "\e[33m 14.\e[0m \e[32mDisable NetworkManager-wait-online.service\e[0m"
     echo -e "\e[33m 15.\e[0m \e[32mDisable Gnome Software from Startup Apps\e[0m"
     echo -e "\e[33m 16.\e[0m \e[32mChange hostname                                              ( Change current localname/pc name )\e[0m"
-    echo -e "\e[33m 17.\e[0m \e[32m \e[0m"
+    echo -e "\e[33m 17.\e[0m \e[32mCheck mitigations=off in GRUB\e[0m"
     echo -e "\e[33m 18.\e[0m \e[32mInstall additional apps\e[0m"
     echo -e "\e[33m 19.\e[0m \e[32mCleanup Fedora\e[0m"
     echo -e "\e[33m 20.\e[0m \e[32mFix Chrome HW accelerations issue                            ( No guarantee )\e[0m"
     echo -e "\e[33m 21.\e[0m \e[32mDisplay XDG session\e[0m"
     echo -e "\e[33m 22.\e[0m \e[32mFix grub or rebuild grub                                     ( Checks and enables menu output to grub menu )\e[0m"
-    echo -e "\e[33m 23.\e[0m \e[32m \e[0m"
-    echo -e "\e[33m 24.\e[0m \e[32mRemove KDE bloatware                                         ( Why are these installed? )\e[0m"
+    echo -e "\e[33m 23.\e[0m \e[32mInstall new DNF5                                             ( Testing for fedora 40/41 )\e[0m"
+    echo -e "\e[33m 24.\e[0m \e[32mRemove Useless KDE Apps                                      ( Why are these installed? )\e[0m"
     echo -e "\e[33m 25.\e[0m \e[32mPerform BTRFS balance and scrub operation on / partition     ( !! WARNING, backup important data incase, 5 min operation )\e[0m"
     echo -e "\e[33m 26.\e[0m \e[32mCreate extra hidden dir in HOME                                "
     echo -e "\e[33m 27.\e[0m \e[32mModify systemd timeout settings to 10s                         "
-    echo -e "\e[33m 28.\e[0m \e[32mSet-up TCP && UDP firewall settings                          ( Mimic my NixOS firewall settings )                         "
+    echo -e "\e[33m 28.\e[0m \e[32mSet-up TCP && UDP firewall settings                          ( Mimic my NixOS firewall settings ) "
+    echo -e "\e[33m 29.\e[0m \e[32mSet-up ZRAM                                                  ( For systems with low RAM (<+ 8 GB) ) "
     echo -e "\e[34m|-------------------------------------------------------------------------------|\e[0m"
     echo -e "\e[31m   (0) \e[0m \e[32mExit\e[0m"
     echo -e "\e[34m|-------------------------------------------------------------------------------|\e[0m"
@@ -1368,17 +1926,17 @@ handle_user_input() {
     echo ""
 
     case "$choice" in
-    1)  ;;
-    2)  ;;
+    1) configure_dnf ;;
+    2) install_rpmfusion ;;
     3) update_system ;;
     4) install_firmware ;;
-    5)  ;;
+    5) install_gpu_drivers ;;
     6) optimize_battery ;;
     7) install_multimedia_codecs ;;
     8) install_hw_video_acceleration_amd_or_intel ;;
     9) update_flatpak ;;
     10) set_utc_time ;;
-    11)  ;;
+    11) disable_mitigations ;;
     12) enable_modern_standby ;;
     13) enable_nvidia_modeset ;;
     14) disable_network_manager_wait_online ;;
@@ -1390,13 +1948,13 @@ handle_user_input() {
     20) fix_chrome ;;
     21) display_XDG_session ;;
     22) fix_grub ;;
-    23)  ;;
+    23) dnf5 ;;
     24) kde_crap ;;
     25) btrfs_maint ;;
     26) create-extra-dir ;;
     27) speed-up-shutdown ;;
     28) firewall ;;
-
+    29) zram ;;
     0)
         # Before exiting, check if duf and neofetch are installed
         for_exit "duf"
@@ -1405,14 +1963,14 @@ handle_user_input() {
         for_exit "espeak"
         duf
         neofetch
-        figlet Solus Linux
+        figlet Fedora_39
         #end_time=$(date +%s)
         #time_taken=$((end_time - start_time))
         # # espeak -v en-us+m7 -s 165 "ThankYou! For! Using! My Configurations! Bye! "
         exit
         ;;
     *)
-        echo -e "Invalid choice. Please enter a number from 0 to 28."
+        echo -e "Invalid choice. Please enter a number from 0 to 26."
         gum spin --spinner dot --title "Stand-by..." -- sleep 1
         ;;
     esac
@@ -1425,4 +1983,3 @@ while true; do
     display_main_menu
     handle_user_input
 done
-

@@ -18,12 +18,43 @@
 #   ░ ░       ░    ░ ░  ░ ░ ░ ░ ▒    ░░   ░   ░   ▒
 #   ░  ░      ░    ░ ░     ░              ░  ░   ░
 
+# https://github.com/massgravel/Microsoft-Activation-Scripts
+
 clear
 
 # Check if the script is run as root
 if [ "$EUID" -ne 0 ]; then
     echo "Please run this script as root or using sudo."
     exit 1
+fi
+
+[ ${UID} -eq 0 ] && read -p "Username for this script: " user && export user || export user="$USER"
+
+# Check whether if the windowing system is Xorg or Wayland
+if [[ ${XDG_SESSION_TYPE} == "wayland" ]]; then
+    export MOZ_ENABLE_WAYLAND=1
+    export OBS_USE_EGL=1
+fi
+
+# QT/Kvantum theme
+if [ -f /usr/bin/qt5ct ]; then
+    export QT_QPA_PLATFORM="xcb"
+    export QT_QPA_PLATFORMTHEME="qt5ct"
+fi
+
+BASHRC_FILE="$HOME/.bashrc"
+desired_ps1='PS1="\[\e[1;32m\]┌[\[\e[1;32m\]\u\[\e[1;34m\]@\h\[\e[1;m\]] \[\e[1;m\]::\[\e[1;36m\] \W \[\e[1;m\]::\n\[\e[1;m\]└\[\e[1;33m\]➤ 🖐️👀 👉\[\e[0;m\] "'
+fortune='echo "" && fortune && echo "" '
+
+if ! grep -qF "$desired_ps1" "$BASHRC_FILE"; then
+    # Add desired PS1 configuration to .bashrc
+    echo -e "$desired_ps1" >>"$BASHRC_FILE"
+    echo -e "$fortune" >>"$BASHRC_FILE"
+    source "$BASHRC_FILE"
+
+    gum spin --spinner dot --title "Custom bashrc colors added, standby..." -- sleep 2
+else
+    gum spin --spinner dot --title "Bashrc custom colors already exist, standby..." -- sleep 2
 fi
 
 # Assign a color variable based on the RANDOM number
@@ -67,7 +98,17 @@ SWAP_PATH="/swapfile"
 SWAP_SIZE=2G
 SYS_PATH="/etc/sysctl.conf"
 
-sudo dnf install -y figlet
+sudo dnf install -y figlet fortune
+
+# Update Time (Enable Network Time)
+sudo timedatectl set-ntp true
+
+# Update User Dirs
+[ -f /usr/bin/xdg-user-dirs-update ] && xdg-user-dirs-update
+
+# Set to performance
+[ -f /usr/bin/powerprofilesctl ] && powerprofilesctl list | grep -q performance && powerprofilesctl set performance
+
 clear
 
 echo '[charm]
@@ -410,6 +451,30 @@ install_gpu_drivers() {
         ###### DOWNGRADE NVIDIA FROM 545x to 535x
         # sudo dnf remove \*nvidia\* --exclude nvidia-gpu-firmware
         # sudo dnf install akmod-nvidia-535.129.03\* xorg-x11-drv-nvidia-cuda-535.129.03\* nvidia\*535.129.03\*
+        # sudo dnf install dnf-plugin-versionlock
+        #sudo dnf versionlock add akmod-nvidia-3:535.129.03-1.fc39
+        #sudo dnf versionlock add nvidia-modprobe-3:535.129.03-1.fc39
+        #sudo dnf versionlock add nvidia-persistenced-3:535.129.03-1.fc39
+        #sudo dnf versionlock add nvidia-settings-3:535.129.03-1.fc39
+        #sudo dnf versionlock add nvidia-xconfig-3:535.129.03-1.fc39
+        #sudo dnf versionlock add xorg-x11-drv-nvidia-3:535.129.03-1.fc39
+        #sudo dnf versionlock add xorg-x11-drv-nvidia-cuda-3:535.129.03-1.fc39
+        #sudo dnf versionlock add xorg-x11-drv-nvidia-cuda-libs-3:535.129.03-1.fc39
+        #sudo dnf versionlock add xorg-x11-drv-nvidia-kmodsrc-3:535.129.03-1.fc39
+        #sudo dnf versionlock add xorg-x11-drv-nvidia-libs-3:535.129.03-1.fc39
+        #sudo dnf versionlock add xorg-x11-drv-nvidia-power-3:535.129.03-1.fc39
+        #sudo rm /etc/yum.repos.d/nvidia-exclude.repo
+        #sudo dnf versionlock list
+        #sudo dnf update
+        #cl
+        #sudo dnf update
+        #sudo dnf versionlock list
+        ########################## DELETE LOCKS ###############################
+        #sudo dnf versionlock delete akmod-nvidia-3:535.129.03-1.fc39
+        #sudo dnf versionlock delete nvidia-modprobe-3:535.129.03-1.fc39
+        #sudo dnf versionlock delete nvidia-persistenced-3:535.129.03-1.fc39
+        #sudo dnf versionlock delete nvidia-settings-3:535.129.03-1.fc39
+        #sudo dnf versionlock delete nvidia-xconfig-3:535.129.03-1.fc39
 
         display_message "Enabling nvidia-modeset..."
 
@@ -474,7 +539,7 @@ install_gpu_drivers() {
             # Add existing NVIDIA environment variables to .bashrc
             echo "export __GL_THREADED_OPTIMIZATION=1" >>"$BASHRC_FILE"
             echo "export __GL_SHADER_CACHE=1" >>"$BASHRC_FILE"
-            
+
             # Optionally, set a custom shader cache path
             # echo "export __GL_SHADER_DISK_CACHE_PATH=/path/to/shader/cache" >> "$BASHRC_FILE"
 
@@ -519,6 +584,9 @@ install_gpu_drivers() {
         uname -m && cat /etc/*release
         gcc --version
         uname -r
+        sudo systemctl enable nvidia-persistenced.service
+        sudo systemctl status nvidia-persistenced.service
+        nvidia-smi
         gum spin --spinner dot --title "Stand-by..." -- sleep 3.5
     fi
 
@@ -658,7 +726,7 @@ update_flatpak() {
 
     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     # flatpak update
-    flatpak update --refresh
+    flatpak update -y
 
     display_message "[${GREEN}✔${NC}]  Executing Tolga's Flatpak's..."
 
@@ -700,7 +768,11 @@ disable_mitigations() {
     case "$choice" in
     y | Y)
         # Disable mitigations
-        sudo grubby --update-kernel=ALL --args="mitigations=off threadirqs swap=0 nowatchdog=1 transparent_hugepage=never intel_idle.max_cstate=0 processor.max_cstate=0"
+        sudo grubby --update-kernel=ALL --args="mitigations=off"
+
+        # Custon Tweak for tolga
+        # sudo grubby --update-kernel=ALL --args="mitigations=off threadirqs swap=0 nowatchdog=1 transparent_hugepage=never intel_idle.max_cstate=0 processor.max_cstate=0"
+
         display_message "[${GREEN}✔${NC}]  Mitigations disabled successfully and multi-threading enabled."
         gum spin --spinner dot --title "Stand-by..." -- sleep 2
         ;;
@@ -783,7 +855,11 @@ check_mitigations_grub() {
     grub_config=$(cat /etc/default/grub)
 
     # Check if mitigations=off is present
-    if echo "$grub_config" | grep -q "mitigations=off threadirqs swap=0 nowatchdog=1 transparent_hugepage=never intel_idle.max_cstate=0 processor.max_cstate=0"; then
+    # for tolga's system
+    # if echo "$grub_config" | grep -q "mitigations=off threadirqs swap=0 nowatchdog=1 transparent_hugepage=never intel_idle.max_cstate=0 processor.max_cstate=0"; then
+
+    if echo "$grub_config" | grep -q "mitigations=off"; then
+
         display_message "[${GREEN}✔${NC}]  Mitigations are currently disabled in GRUB configuration: ==>  ( Success! )"
         gum spin --spinner dot --title "Stand-by..." -- sleep 2
     else
@@ -905,10 +981,32 @@ install_apps() {
     sudo dnf install rpmfusion-nonfree-release-tainted
     sudo dnf --repo=rpmfusion-nonfree-tainted install "*-firmware"
 
+    # Essential Packages
+    if [ -f /usr/bin/nala ]; then
+        sudo nala install --assume-yes \
+            flatpak neofetch nano htop zip un{zip,rar} tar ffmpeg ffmpegthumbnailer tumbler sassc \
+            fonts-noto gtk2-engines-murrine gtk2-engines-pixbuf ntfs-3g wget curl git openssh-client \
+            intel-media-va-driver i965-va-driver webext-ublock-origin-firefox
+    elif [ -f /usr/bin/pacman ]; then
+        sudo pacman -S --needed --noconfirm \
+            flatpak neofetch nano htop zip un{zip,rar} tar ffmpeg ffmpegthumbnailer tumbler sassc \
+            noto-fonts-{cjk,emoji} gtk-engine-murrine gtk-engines ntfs-3g wget curl git openssh \
+            libva-intel-driver intel-media-driver firefox-ublock-origin
+    elif [ -f /usr/bin/dnf ]; then
+        sudo dnf install --assumeyes --best --allowerasing \
+            flatpak neofetch nano htop zip un{zip,rar} tar ffmpeg ffmpegthumbnailer tumbler sassc \
+            google-noto-{cjk,emoji-color}-fonts gtk-murrine-engine gtk2-engines ntfs-3g wget curl git openssh \
+            libva-intel-driver intel-media-driver mozilla-ublock-origin easyeffects pulseeffects
+    fi
+
+    # Audio
+    [ -f /usr/bin/easyeffects ] && [ -f $HOME/.config/easyeffects/output/default.json ] && easyeffects -l default
+    [ -f /usr/bin/pulseeffects ] && [ -f $HOME/.config/PulseEffects/output/default.json ] && pulseeffects -l default
+
     sudo dnf install -y PackageKit dconf-editor digikam direnv duf earlyoom espeak ffmpeg-libs figlet gedit gimp gimp-devel git gnome-font-viewer
     sudo dnf install -y grub-customizer kate libdvdcss libffi-devel lsd mpg123 neofetch openssl-devel p7zip p7zip-plugins pip python3 python3-pip
     sudo dnf install -y rhythmbox rygel shotwell sshpass sxiv timeshift unrar unzip cowsay fortune
-    sudo dnf install -y sshfs fuse-sshfs rsync openssh-server openssh-clients
+    sudo dnf install -y sshfs fuse-sshfs rsync openssh-server openssh-clients wsdd
     sudo dnf install -y variety virt-manager wget xclip zstd fd-find fzf gtk3 rygel
 
     /usr/bin/rygel-preferences
@@ -928,8 +1026,8 @@ install_apps() {
     ## Miscellaneous
     sudo dnf -y install dialog htop net-tools
 
-    sudo dnf swap -y libavcodec-free libavcodec-freeworld --allowerasing
-    sudo dnf swap -y ffmpeg-free ffmpeg --allowerasing
+#    sudo dnf swap -y libavcodec-free libavcodec-freeworld --allowerasing
+#    sudo dnf swap -y ffmpeg-free ffmpeg --allowerasing
 
     display_message "[${GREEN}✔${NC}]  Installing GUM"
 
@@ -1117,6 +1215,83 @@ EOF
     check_port22
     sudo systemctl status sshd
 
+    display_message "[${GREEN}✔${NC}]  Setup Web Service Discovery host daemon"
+
+    echo ""
+    echo "wsdd implements a Web Service Discovery host daemon. This enables (Samba) hosts, like your local NAS device, to be found by Web Service Discovery Clients like Windows."
+    echo "It also implements the client side of the discovery protocol which allows to search for Windows machines and other devices implementing WSD. This mode of operation is called discovery mode."
+    echo""
+
+    gum spin --spinner dot --title " Standby, traffic for the following ports, directions and addresses must be allowed" -- sleep 2
+
+    sudo firewall-cmd --add-rich-rule='rule family="ipv4" source address="239.255.255.250" port protocol="udp" port="3702" accept'
+    sudo firewall-cmd --add-rich-rule='rule family="ipv6" source address="ff02::c" port protocol="udp" port="3702" accept'
+    sudo firewall-cmd --add-rich-rule='rule family="ipv4" port protocol="udp" port="3702" accept'
+    sudo firewall-cmd --add-rich-rule='rule family="ipv6" port protocol="udp" port="3702" accept'
+    sudo firewall-cmd --add-rich-rule='rule family="ipv4" port protocol="tcp" port="5357" accept'
+    sudo firewall-cmd --add-rich-rule='rule family="ipv6" port protocol="tcp" port="5357" accept'
+
+    # Define the path to the wsdd service file
+    SERVICE_FILE="/usr/lib/systemd/system/wsdd.service"
+
+    # Define the path to the old sysconfig file
+    OLD_SYSCONFIG_FILE="/etc/default/wsdd"
+
+    # Define the path to the new sysconfig file
+    NEW_SYSCONFIG_FILE="/etc/sysconfig/wsdd"
+
+    # Check if EnvironmentFile line with old path exists in the service file
+    if grep -q "EnvironmentFile=$OLD_SYSCONFIG_FILE" "$SERVICE_FILE"; then
+        # Comment out the old EnvironmentFile line
+        sudo sed -i "s|EnvironmentFile=$OLD_SYSCONFIG_FILE|#&|" "$SERVICE_FILE"
+
+        # Add the new EnvironmentFile line directly under the commented old line
+        sudo sed -i "\|#EnvironmentFile=$OLD_SYSCONFIG_FILE|a EnvironmentFile=$NEW_SYSCONFIG_FILE" "$SERVICE_FILE"
+        gum spin --spinner dot --title " Standby, editind WSDD config" -- sleep 2
+
+        # Reload systemd to apply changes
+        sudo systemctl daemon-reload
+
+        # Restart the wsdd service
+
+        gum spin --spinner dot --title " Standby, restarting , reloading and getting wsdd status" -- sleep 2
+        sudo systemctl enable wsdd.service
+        sudo systemctl restart wsdd.service
+        display_message "[${GREEN}✔${NC}]  WSDD setup complete"
+        systemctl status wsdd.service
+
+        sleep 1
+
+        echo "EnvironmentFile updated to $NEW_SYSCONFIG_FILE and service restarted."
+        sleep 2
+    else
+        # Check if EnvironmentFile line with new path exists
+        if grep -q "EnvironmentFile=$NEW_SYSCONFIG_FILE" "$SERVICE_FILE"; then
+            echo "No changes needed. EnvironmentFile is already updated."
+        else
+            # Add the new EnvironmentFile line at the end of the [Service] section
+            echo -e "\nEnvironmentFile=$NEW_SYSCONFIG_FILE" | sudo tee -a "$SERVICE_FILE" >/dev/null
+            gum spin --spinner dot --title " Standby, editind WSDD config" -- sleep 2
+
+            # Reload systemd to apply changes
+            sudo systemctl daemon-reload
+
+            # Restart the wsdd service
+            gum spin --spinner dot --title " Standby, restarting , reloading and getting wsdd status" -- sleep 2
+            sudo systemctl enable wsdd.service
+            sudo systemctl restart wsdd.service
+            display_message "[${GREEN}✔${NC}]  WSDD setup complete"
+            systemctl status wsdd.service
+
+            sleep 1
+
+            echo "EnvironmentFile added with path $NEW_SYSCONFIG_FILE and service restarted."
+            sleep 2
+        fi
+    fi
+
+    gum spin --spinner dot --title "Standby.." -- sleep 1
+
     display_message "[${GREEN}✔${NC}]  Setup KDE Wallet"
     gum spin --spinner dot --title "Standby.." -- sleep 1
     # Install Plasma related packages
@@ -1245,6 +1420,8 @@ EOF
 
     sudo dnf install fontconfig-font-replacements -y --skip-broken && sudo dnf install fontconfig-enhanced-defaults -y --skip-broken
 
+    sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/tolgaerok/tolga-scripts/main/Fedora39/San-Francisco-family/San-Francisco-family.sh)"
+
     # Install OpenRGB.
     display_message "[${GREEN}✔${NC}]  Installing OpenRGB"
     sudo modprobe i2c-dev && sudo modprobe i2c-piix4 && sudo dnf install openrgb -y
@@ -1350,9 +1527,19 @@ EOF
     # Prompt for the desired name for samba
     read -p $'\n'"Enter the GROUP name to add username to Samba: " sambagroup
 
+    # Add the custom group
     sudo groupadd $sambagroup
+
+    # ensures that a home directory is created for the user
     sudo useradd -m $sambausername
+
+    # Add the user to the Samba user database
     sudo smbpasswd -a $sambausername
+
+    # enable or activate the Samba user account for login
+    sudo smbpasswd -e $sambausername
+
+    # Add the user to the specified group
     sudo usermod -aG $sambagroup $sambausername
 
     read -r -p "
@@ -1523,6 +1710,7 @@ fix_grub() {
     sudo grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
 
     echo "GRUB updated successfully."
+    sleep 2
 }
 
 # Remove KDE Junk
@@ -1688,6 +1876,12 @@ btrfs_maint() {
 
 create-extra-dir() {
     display_message "[${GREEN}✔${NC}]  Create extra needed directories"
+
+    # Check if username is provided, otherwise use default
+    if [ -z "$user" ]; then
+        user="$USER"
+    fi
+
     # Directories to create
     directories=(
         "~/.config/autostart"
@@ -1704,15 +1898,17 @@ create-extra-dir() {
         "~/src"
     )
 
-    # Create directories
+    # Create directories using the specified username
     for dir in "${directories[@]}"; do
-        mkdir -p "$dir"
-        gum spin --spinner dot --title "[✔]  Creating: $dir" -- sleep 1
+        dir_path=$(eval echo "$dir" | sed "s|~|/home/$user|")
+        mkdir -p "$dir_path"
+        gum spin --spinner dot --title "[✔]  Creating: $dir_path" -- sleep 1
         sleep 0.5
+        chown "$user:$user" "$dir_path"
     done
 
     # Set SSH folder permissions
-    chmod 700 ~/.ssh
+    chmod 700 "/home/$user/.ssh"
 
     display_message "[${GREEN}✔${NC}]  Extra hidden dirs created"
     gum spin --spinner dot --title "Stand-by..." -- sleep 2

@@ -1,21 +1,35 @@
 #!/bin/bash
 
-# I take very, very little credit for this script.  All kudo's go to my brother from another mother, Tolga Erok...
-# I modified a script he made for Fedora to work with Solus.
-# Dec 20 2023
+# Tolga Erok.
+# My personal Fedora 39 flatpaks
+# 23/11/2023
 
-# Run from remote location:
-# bash -c "$(curl -fsSL https://raw.githubusercontent.com/wvpianoman/brian-scripts/main/solus/FlatPakInstall.sh)"
+# Run from remote location:::.
+# sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/tolgaerok/tolga-scripts/main/Fedora39/FlatPakApps.sh)"
 
-#   《˘ ͜ʖ ˘》
+#  ¯\_(ツ)_/¯
+
+#  █████▒██▓    ▄▄▄     ▄▄▄█████▓ ██▓███   ▄▄▄       ██ ▄█▀
+#▓██   ▒▓██▒   ▒████▄   ▓  ██▒ ▓▒▓██░  ██▒▒████▄     ██▄█▒
+#▒████ ░▒██░   ▒██  ▀█▄ ▒ ▓██░ ▒░▓██░ ██▓▒▒██  ▀█▄  ▓███▄░
+#░▓█▒  ░▒██░   ░██▄▄▄▄██░ ▓██▓ ░ ▒██▄█▓▒ ▒░██▄▄▄▄██ ▓██ █▄
+#░▒█░   ░██████▒▓█   ▓██▒ ▒██▒ ░ ▒██▒ ░  ░ ▓█   ▓██▒▒██▒ █▄
+# ▒ ░   ░ ▒░▓  ░▒▒   ▓▒█░ ▒ ░░   ▒▓▒░ ░  ░ ▒▒   ▓▒█░▒ ▒▒ ▓▒
+# ░     ░ ░ ▒  ░ ▒   ▒▒ ░   ░    ░▒ ░       ▒   ▒▒ ░░ ░▒ ▒░
+# ░ ░     ░ ░    ░   ▒    ░      ░░         ░   ▒   ░ ░░ ░
+#           ░  ░     ░  ░                       ░  ░░  ░
 #
-#███████╗██╗      █████╗ ████████╗██████╗  █████╗ ██╗  ██╗     █████╗ ██████╗ ██████╗ ███████╗
-#██╔════╝██║     ██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗██║ ██╔╝    ██╔══██╗██╔══██╗██╔══██╗██╔════╝
-#█████╗  ██║     ███████║   ██║   ██████╔╝███████║█████╔╝     ███████║██████╔╝██████╔╝███████╗
-#██╔══╝  ██║     ██╔══██║   ██║   ██╔═══╝ ██╔══██║██╔═██╗     ██╔══██║██╔═══╝ ██╔═══╝ ╚════██║
-#██║     ███████╗██║  ██║   ██║   ██║     ██║  ██║██║  ██╗    ██║  ██║██║     ██║     ███████║
-#╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚═╝     ╚═╝     ╚══════╝
-#
+# ▄▄▄       ██▓███   ██▓███    ██████
+#▒████▄    ▓██░  ██▒▓██░  ██▒▒██    ▒
+#▒██  ▀█▄  ▓██░ ██▓▒▓██░ ██▓▒░ ▓██▄
+#░██▄▄▄▄██ ▒██▄█▓▒ ▒▒██▄█▓▒ ▒  ▒   ██▒
+# ▓█   ▓██▒▒██▒ ░  ░▒██▒ ░  ░▒██████▒▒
+# ▒▒   ▓▒█░▒▓▒░ ░  ░▒▓▒░ ░  ░▒ ▒▓▒ ▒ ░
+#  ▒   ▒▒ ░░▒ ░     ░▒ ░     ░ ░▒  ░ ░
+#  ░   ▒   ░░       ░░       ░  ░  ░
+#      ░  ░                        ░
+
+
 
 # Prompt user for confirmation
 read -p ")==> This script will install Flatpak applications and make system modifications. Do you want to continue? (y/n): " choice
@@ -45,19 +59,19 @@ flatpak install -y flathub org.freedesktop.Platform.GStreamer.gstreamer-vaapi/x8
 flatpak install -y flathub org.freedesktop.Platform.GStreamer.gstreamer-vaapi/x86_64/23.08
 
 # Install Bottles
-flatpak install -y flathub com.usebottles.bottles
+#flatpak install -y flathub com.usebottles.bottles
 
 # Allow Bottles to create application shortcuts
-flatpak override --user --filesystem=xdg-data/applications com.usebottles.bottles
+#flatpak override --user --filesystem=xdg-data/applications com.usebottles.bottles
 
 # Allow Bottles to access Steam folder
-flatpak override --user --filesystem=home/.var/app/com.valvesoftware.Steam/data/Steam com.usebottles.bottles
+#flatpak override --user --filesystem=home/.var/app/com.valvesoftware.Steam/data/Steam com.usebottles.bottles
 
 # Install Breeze-GTK flatpak theme
 flatpak install -y flathub org.gtk.Gtk3theme.Breeze
 
 # Install applications
-flatpak install -y flathub org.videolan.VLC
+#flatpak install -y flathub org.videolan.VLC
 
 # Install Firefox from Flathub
 flatpak install -y flathub org.mozilla.firefox
@@ -69,10 +83,8 @@ flatpak install -y flathub org.mozilla.firefox
 # Set Firefox about:config variables for Nvidia and Flatpak
 # flatpak override --env=MOZ_ENABLE_WAYLAND=1 --env=GDK_BACKEND=x11 org.mozilla.firefox
 
-# ABLE_WAYLAND=1 org.mozilla.firefox
+# Enable wayland support
 flatpak override --user --socket=wayland --env=MOZ_ENABLE_WAYLAND=1 org.mozilla.firefox
-# Hi brian, use this to set environment variables and modify permissions for a Flatpak application. The command used her is specifically 
-# configuring the Firefox Flatpak to enable Wayland support
 
 # Temporarily open Firefox to create profiles
 flatpak run --user org.mozilla.firefox
@@ -183,38 +195,44 @@ EOF
 # Define an array of Flatpak application IDs
 flatpak_apps=(
     "com.sindresorhus.Caprine"
-    "org.gnome.Shotwell"
-    "com.transmissionbt.Transmission"
-    "com.anydesk.Anydesk"
-    "me.kozec.syncthingtk"
-    "com.github.zocker_160.SyncThingy"
+#    "org.gnome.Shotwell"
+#    "com.transmissionbt.Transmission"
+#    "com.anydesk.Anydesk"
+#    "me.kozec.syncthingtk"
+#    "com.github.zocker_160.SyncThingy"
     "com.microsoft.EdgeDev"
 
-    "org.onlyoffice.desktopeditors"
-    "org.blender.Blender"
+#    "org.onlyoffice.desktopeditors"
+#    "org.blender.Blender"
     "com.jgraph.drawio.desktop"
-    "org.gimp.GIMP"
-    "org.kde.krita"
+#    "org.gimp.GIMP"
+#    "org.kde.krita"
     "org.libreoffice.LibreOffice"
+#    "net.scribus.Scribus"
     "im.riot.Riot"
-    "org.telegram.desktop"
-    "org.telegram.desktop.webview"
+#    "org.telegram.desktop"
+#    "org.telegram.desktop.webview"
     "io.github.shiftey.Desktop"
-    "org.videolan.VLC"
+#    "org.videolan.VLC"
     "com.jgraph.drawio.desktop"
-    "org.inkscape.Inkscape"
-    "com.discordapp.Discord"
-    "com.google.ChromeDev"
-    "com.google.Chrome"
-    "net.scribus.Scribus"
-
+#    "com.google.ChromeDev"
+#    "com.google.Chrome"
+#    "org.inkscape.Inkscape"
+#    "com.discordapp.Discord"
 )
 
 # Install applications
 for app in "${flatpak_apps[@]}"; do
-    flatpak install -y flathub "$app"
+    flatpak install flathub "$app"
 done
-sleep 3
+
+echo -e "\e[1;32m[✔]\e[0m Checking updates for installed flatpak programs...\n"
+flatpak update -y
+sleep 1
+
+echo -e "\e[1;32m[✔]\e[0m Removing Old Flatpak Cruft...\n"
+flatpak uninstall --unused
+flatpak uninstall --delete-data
 
 echo "#####################################"
 echo
@@ -250,8 +268,5 @@ sleep 1
 flatpak --columns=app,name,size,installation list
 echo -e "\e[1;32m[✔]\e[0m List of flatpaks on system...\n"
 
-# systemctl status dbus
-sudo systemctl start dbus
-
 echo "Installation completed. You can now run the installed applications."
-sleep 3
+sleep 10

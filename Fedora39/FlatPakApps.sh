@@ -59,13 +59,13 @@ flatpak install -y flathub org.freedesktop.Platform.GStreamer.gstreamer-vaapi/x8
 flatpak install -y flathub org.freedesktop.Platform.GStreamer.gstreamer-vaapi/x86_64/23.08
 
 # Install Bottles
-flatpak install -y flathub com.usebottles.bottles
+#flatpak install -y flathub com.usebottles.bottles
 
 # Allow Bottles to create application shortcuts
-flatpak override --user --filesystem=xdg-data/applications com.usebottles.bottles
+#flatpak override --user --filesystem=xdg-data/applications com.usebottles.bottles
 
 # Allow Bottles to access Steam folder
-flatpak override --user --filesystem=home/.var/app/com.valvesoftware.Steam/data/Steam com.usebottles.bottles
+#flatpak override --user --filesystem=home/.var/app/com.valvesoftware.Steam/data/Steam com.usebottles.bottles
 
 # Install Breeze-GTK flatpak theme
 flatpak install -y flathub org.gtk.Gtk3theme.Breeze
@@ -195,28 +195,28 @@ EOF
 # Define an array of Flatpak application IDs
 flatpak_apps=(
     "com.sindresorhus.Caprine"
-    "org.gnome.Shotwell"
-    "com.transmissionbt.Transmission"
-    "com.anydesk.Anydesk"
-    "me.kozec.syncthingtk"
-    "com.github.zocker_160.SyncThingy"
+#    "org.gnome.Shotwell"
+#    "com.transmissionbt.Transmission"
+#    "com.anydesk.Anydesk"
+#    "me.kozec.syncthingtk"
+#    "com.github.zocker_160.SyncThingy"
     "com.microsoft.EdgeDev"
 
-    "org.onlyoffice.desktopeditors"
-    "org.blender.Blender"
+#    "org.onlyoffice.desktopeditors"
+#    "org.blender.Blender"
     "com.jgraph.drawio.desktop"
-    "org.gimp.GIMP"
-    "org.kde.krita"
+#    "org.gimp.GIMP"
+#    "org.kde.krita"
     "org.libreoffice.LibreOffice"
-    "net.scribus.Scribus"
+#    "net.scribus.Scribus"
     "im.riot.Riot"
-    "org.telegram.desktop"
-    "org.telegram.desktop.webview"
+#    "org.telegram.desktop"
+#    "org.telegram.desktop.webview"
     "io.github.shiftey.Desktop"
-    "org.videolan.VLC"
+#    "org.videolan.VLC"
     "com.jgraph.drawio.desktop"
-    "org.inkscape.Inkscape"
-    "com.discordapp.Discord"
+#    "org.inkscape.Inkscape"
+#    "com.discordapp.Discord"
 )
 
 # Install applications
