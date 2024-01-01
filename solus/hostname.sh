@@ -56,21 +56,22 @@ red_msg() {
     tput sgr0
 }
 
-# lets get dependencies installed to make earlyoom
+# Change Hostname
+change_hotname() {
+    current_hostname=$(hostname)
 
-sudo eopkg install autoconf automake binutils bzip2-devel cargo cargo-c cmake g++ gcc git glibc-devel lame-devel libass-devel libjpeg-turbo-devel libogg-devel libtheora-devel libtool-devel libspeex-devel libvorbis-devel libvpx-devel libxml2-devel linux-headers m4 make meson nasm ninja numactl-devel opus-devel patch pkg-config rust x264-devel xz-devel zlib-devel appstream desktop-file-utils gstreamer-1.0-plugins-good gstreamer-1.0-libav gstreamer-1.0-plugins-base-devel libgtk-3-devel libva-devel libdrm-devel
+    display_message "Changing HOSTNAME: $current_hostname"
 
-# Clone Earlyoom and compile it yourself
+    # Get the new hostname from the user
+    read -p "Enter the new hostname: " new_hostname
 
-git clone https://github.com/rfjakob/earlyoom.git
-cd earlyoom
-make
+    # Change the system hostname
+    sudo hostnamectl set-hostname "$new_hostname"
 
-# Optional: Run the integrated self-tests:
+    # Update /etc/hosts file
+    sudo sed -i "s/127.0.0.1.*localhost/127.0.0.1 $new_hostname localhost/" /etc/hosts
 
-# make test
-
-# Start earlyoom automatically by registering it as a service:
-
-sudo make install              # systemd
-# sudo make install-initscript   # non-systemd
+    # Display the new hostname
+    echo "Hostname changed to: $new_hostname"
+    gum spin --spinner dot --title "Stand-by..." -- sleep 2
+}
