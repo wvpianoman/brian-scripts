@@ -46,6 +46,7 @@ fi
 
 # Add Flathub repository if not already added
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
 
 # if lspci | grep VGA | grep "Intel" >/dev/null; then
 flatpak install -y flathub org.freedesktop.Platform.VAAPI.Intel/x86_64/22.08
@@ -202,7 +203,7 @@ flatpak_apps=(
 #    "com.github.zocker_160.SyncThingy"
     "com.microsoft.EdgeDev"
 
-#    "org.onlyoffice.desktopeditors"
+    "org.onlyoffice.desktopeditors"
 #    "org.blender.Blender"
     "com.jgraph.drawio.desktop"
 #    "org.gimp.GIMP"
@@ -215,8 +216,8 @@ flatpak_apps=(
     "io.github.shiftey.Desktop"
 #    "org.videolan.VLC"
     "com.jgraph.drawio.desktop"
-#    "com.google.ChromeDev"
-#    "com.google.Chrome"
+    "com.google.ChromeDev"
+    "com.google.Chrome"
 #    "org.inkscape.Inkscape"
 #    "com.discordapp.Discord"
 )
