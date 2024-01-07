@@ -4,6 +4,17 @@
 # 25 Dec 2023
 # bash -c "$(curl -fsSL https://raw.githubusercontent.com/tolgaerok/tolga-scripts/main/NIXOS-PKG-MANAGER/SOLUS/nix-solus.sh)"
 
+#   《˘ ͜ʖ ˘》
+#
+#  ███████╗ ██████╗ ██╗     ██╗   ██╗███████╗    ██╗     ██╗███╗   ██╗██╗   ██╗██╗  ██╗
+#  ██╔════╝██╔═══██╗██║     ██║   ██║██╔════╝    ██║     ██║████╗  ██║██║   ██║╚██╗██╔╝
+#  ███████╗██║   ██║██║     ██║   ██║███████╗    ██║     ██║██╔██╗ ██║██║   ██║ ╚███╔╝
+#  ╚════██║██║   ██║██║     ██║   ██║╚════██║    ██║     ██║██║╚██╗██║██║   ██║ ██╔██╗
+#  ███████║╚██████╔╝███████╗╚██████╔╝███████║    ███████╗██║██║ ╚████║╚██████╔╝██╔╝ ██╗
+#  ╚══════╝ ╚═════╝ ╚══════╝ ╚═════╝ ╚══════╝    ╚══════╝╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝
+#
+# https://patorjk.com/software/taag/#p=display&c=bash&f=ANSI%20Shadow&t=Solus%20Linux
+
 clear
 # Assign a color variable based on the RANDOM number
 RED='\e[1;31m'
