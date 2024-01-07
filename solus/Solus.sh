@@ -654,7 +654,7 @@ EOF
 
     # Install some fonts
     display_message "[${GREEN}✔${NC}]  Installing some fonts"
-    sudo dnf install -y fontawesome-fonts powerline-fonts
+    sudo eopkg install -y font-awesome-ttf powerline-fonts
     sudo mkdir -p ~/.local/share/fonts
     cd ~/.local/share/fonts && curl -fLO https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/DroidSansMono/DroidSansMNerdFont-Regular.otf
     wget https://github.com/tolgaerok/fonts-tolga/raw/main/WPS-FONTS.zip

@@ -102,6 +102,14 @@ sudo mkdir -p /root/.fontconfig
 sudo chown -R root:root /root/.cache/fontconfig
 sudo chown -R root:root /root/.fontconfig
 
+# Install some fonts
+display_message "[${GREEN}✔${NC}]  Installing some fonts"
+sudo eopkg install -y font-awesome-ttf powerline-fonts
+sudo mkdir -p ~/.local/share/fonts
+cd ~/.local/share/fonts && curl -fLO https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/DroidSansMono/DroidSansMNerdFont-Regular.otf
+wget https://github.com/tolgaerok/fonts-tolga/raw/main/WPS-FONTS.zip
+unzip WPS-FONTS.zip -d /usr/share/fonts
+
 sudo mkdir -p "$FONTS_DIR"
 zip_file="San-Francisco-family-master.zip"
 curl -LJO https://github.com/wvpianoman/San-Francisco-family/archive/refs/heads/master.zip

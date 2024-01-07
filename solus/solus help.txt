@@ -1,0 +1,6 @@
+ solus sysctl file located
+
+ /usr/lib/sysctl.d/
+
+ override file 90-override.conf
+
