@@ -203,7 +203,7 @@ flatpak_apps=(
 #    "com.github.zocker_160.SyncThingy"
     "com.microsoft.EdgeDev"
 
-    "org.onlyoffice.desktopeditors"
+#    "org.onlyoffice.desktopeditors"
 #    "org.blender.Blender"
     "com.jgraph.drawio.desktop"
 #    "org.gimp.GIMP"
@@ -213,11 +213,11 @@ flatpak_apps=(
 
 #    "org.telegram.desktop"
 #    "org.telegram.desktop.webview"
-    "io.github.shiftey.Desktop"
+#    "io.github.shiftey.Desktop"
 #    "org.videolan.VLC"
-    "com.jgraph.drawio.desktop"
+#    "com.jgraph.drawio.desktop"
     "com.google.ChromeDev"
-    "com.google.Chrome"
+#    "com.google.Chrome"
 #    "org.inkscape.Inkscape"
 #    "com.discordapp.Discord"
     "one.ablaze.floorp"
