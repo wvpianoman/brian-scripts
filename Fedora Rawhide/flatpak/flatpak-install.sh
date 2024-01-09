@@ -208,9 +208,9 @@ flatpak_apps=(
     "com.jgraph.drawio.desktop"
 #    "org.gimp.GIMP"
 #    "org.kde.krita"
-    "org.libreoffice.LibreOffice"
+
 #    "net.scribus.Scribus"
-    "im.riot.Riot"
+
 #    "org.telegram.desktop"
 #    "org.telegram.desktop.webview"
     "io.github.shiftey.Desktop"
@@ -220,11 +220,12 @@ flatpak_apps=(
     "com.google.Chrome"
 #    "org.inkscape.Inkscape"
 #    "com.discordapp.Discord"
+    "one.ablaze.floorp"
 )
 
 # Install applications
 for app in "${flatpak_apps[@]}"; do
-    flatpak install flathub "$app"
+    flatpak install -y flathub "$app"
 done
 
 echo -e "\e[1;32m[✔]\e[0m Checking updates for installed flatpak programs...\n"
